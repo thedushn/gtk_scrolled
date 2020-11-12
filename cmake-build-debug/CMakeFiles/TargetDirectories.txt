@@ -1,0 +1,3 @@
+/home/dushn/Desktop/gtk_scrolled_window/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/dushn/Desktop/gtk_scrolled_window/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/dushn/Desktop/gtk_scrolled_window/cmake-build-debug/CMakeFiles/gtk_scrolled_window.dir
