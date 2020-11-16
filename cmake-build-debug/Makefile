@@ -177,6 +177,33 @@ main.c.s:
 	$(MAKE) -f CMakeFiles/gtk_scrolled_window.dir/build.make CMakeFiles/gtk_scrolled_window.dir/main.c.s
 .PHONY : main.c.s
 
+reading.o: reading.c.o
+
+.PHONY : reading.o
+
+# target to build an object file
+reading.c.o:
+	$(MAKE) -f CMakeFiles/gtk_scrolled_window.dir/build.make CMakeFiles/gtk_scrolled_window.dir/reading.c.o
+.PHONY : reading.c.o
+
+reading.i: reading.c.i
+
+.PHONY : reading.i
+
+# target to preprocess a source file
+reading.c.i:
+	$(MAKE) -f CMakeFiles/gtk_scrolled_window.dir/build.make CMakeFiles/gtk_scrolled_window.dir/reading.c.i
+.PHONY : reading.c.i
+
+reading.s: reading.c.s
+
+.PHONY : reading.s
+
+# target to generate assembly for a file
+reading.c.s:
+	$(MAKE) -f CMakeFiles/gtk_scrolled_window.dir/build.make CMakeFiles/gtk_scrolled_window.dir/reading.c.s
+.PHONY : reading.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -192,6 +219,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... reading.o"
+	@echo "... reading.i"
+	@echo "... reading.s"
 .PHONY : help
 
 

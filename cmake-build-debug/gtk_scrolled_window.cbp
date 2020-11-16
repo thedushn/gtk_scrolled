@@ -122,6 +122,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/dushn/Desktop/gtk_scrolled_window/common.h">
+			<Option target="gtk_scrolled_window"/>
+		</Unit>
 		<Unit filename="/home/dushn/Desktop/gtk_scrolled_window/drawing.c">
 			<Option target="gtk_scrolled_window"/>
 		</Unit>
@@ -129,6 +132,12 @@
 			<Option target="gtk_scrolled_window"/>
 		</Unit>
 		<Unit filename="/home/dushn/Desktop/gtk_scrolled_window/main.c">
+			<Option target="gtk_scrolled_window"/>
+		</Unit>
+		<Unit filename="/home/dushn/Desktop/gtk_scrolled_window/reading.c">
+			<Option target="gtk_scrolled_window"/>
+		</Unit>
+		<Unit filename="/home/dushn/Desktop/gtk_scrolled_window/reading.h">
 			<Option target="gtk_scrolled_window"/>
 		</Unit>
 		<Unit filename="/home/dushn/Desktop/gtk_scrolled_window/CMakeLists.txt">
