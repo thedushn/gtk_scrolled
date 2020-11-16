@@ -8,6 +8,7 @@
 #include <memory.h>
 #include <stdbool.h>
 #include "drawing.h"
+#include "reading.h"
 
 
 /**
@@ -16,21 +17,27 @@
  * output:none.
  * */
 void do_drawing_cpu2(GtkWidget *widget, cairo_t *cr, guint time_step, Cpu_list *array1) {
-    static double value=0;
+
     gint width, height;
     double font_size = 10;
    // bool *temp_bool=cpu_status;
-
+    double size_scale=  gtk_adjustment_get_upper(adj);
+  //  printf("size %.0f\n",size_scale);
   //  gtk_widget_get_size_request(widget,&width,&height);
     width=gtk_widget_get_allocated_width(window);
     height=gtk_widget_get_allocated_height(window);
-    gtk_widget_set_size_request(widget,(gint)((count/250)*(6*font_size)+3*font_size) ,80);
+    gtk_widget_set_size_request(widget,(gint)((count/250)*(6*font_size)+6*font_size) ,0);
+   size_scale=  gtk_adjustment_get_upper(adj);
+  //  printf("size %.0f\n",size_scale);
+  //  size_scale=  gtk_adjustment_get_upper(adj);
+  //  printf("size %.0f\n",size_scale);
+   //   gtk_adjustment_set_upper(adj,((count/250)*(6*font_size)+8*font_size));
+//    size_scale=  gtk_adjustment_get_upper(adj);
+   // printf("size %.0f\n",size_scale);
    // width=gtk_widget_get_allocated_width(window);
     //height=80;
     height-=2*font_size;
 
-    gtk_adjustment_set_page_size(adj,width);
-    gtk_adjustment_set_page_increment(adj,(count/250));
     //gtk_adjustment_set_step_increment(adj,250);
     //gtk_adjustment_set_value(adj,(6*font_size)+3*font_size);
 //    double temp=gtk_adjustment_get_value(adj);
@@ -56,8 +63,7 @@ void do_drawing_cpu2(GtkWidget *widget, cairo_t *cr, guint time_step, Cpu_list *
    // printf("%f \n",gtk_adjustment_get_upper(adj));
 
 
-    cairo_surface_t *graph_surface;
-    graph_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, (int) width, (int) height);
+
 
     cairo_set_line_width(cr, 1);
 
@@ -84,26 +90,25 @@ void do_drawing_cpu2(GtkWidget *widget, cairo_t *cr, guint time_step, Cpu_list *
     }
 
     draw_time(cr, 5,width, height, font_size, 3,array1);
-    draw_lines(cr,height,font_size,array1);
+   // draw_lines(cr, height, font_size,array1);
 
   // writing_seconds(cr, width, height, font_size, 3);
 
-    if (graph_surface != NULL) {
-        cairo_set_source_surface(cr, graph_surface, 0.0, 0.0);
-        cairo_paint(cr);
-        cairo_surface_destroy(graph_surface);
 
-
-    }
 
 }
 gboolean on_draw_event(GtkWidget *widget, cairo_t *cr,Cpu_list *array1) {
 
 
+   double height= gtk_widget_get_allocated_height(window);
 
 
-    draw_percentages(cr,gtk_widget_get_allocated_height(window),10,value);
+
+
+
     do_drawing_cpu2(widget, cr,1000,array1);
+    draw_percentages(cr,height,10,value);
+    draw_lines(cr,height-20,10,array1);
 
     return true;
 }
@@ -145,108 +150,35 @@ void writing_seconds(cairo_t *cr, double width, double height, double font_size,
 }
 void draw_percentages(cairo_t *cr, double height, double font_size, double position) {
 
-    printf("value %0.f position %0.f\n",value,position);
+    double prev = height - 2*font_size; //zero
+    double temp=2*font_size;
+  //  printf("Position %d\n",(int )position);
     cairo_set_font_size(cr, font_size);
+
+    cairo_set_source_rgb(cr, 0, 1, 1);
+    cairo_rectangle(cr,position,height-4*font_size,3*font_size-2,-height);
+    cairo_fill(cr);
     cairo_move_to(cr, position, font_size);
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_show_text(cr, "100%");
-    cairo_move_to(cr, value, (height - font_size) / 4);
+    cairo_move_to(cr, position, (height - temp) / 4);
     cairo_show_text(cr, "75%");
-    cairo_move_to(cr, value, (height - font_size) / 4 * 2);
+    cairo_move_to(cr, position, (height - temp) / 4 * 2);
     cairo_show_text(cr, "50%");
-    cairo_move_to(cr, value, (height - font_size) / 4 * 3);
+    cairo_move_to(cr, position, (height - temp) / 4 * 3);
     cairo_show_text(cr, "25%");
-    cairo_move_to(cr, value, height - font_size);
+    cairo_move_to(cr, position, height - 2*temp);
     cairo_show_text(cr, "0%");
     cairo_stroke(cr);
 
 
 }
 
-int cpu_read(Cpu_list **array) {
 
-
-    FILE *fp;
-    char *filename = "cpu.data";
-    char buffer[1024];
-    char *p;
-    Cpu_list *temp=NULL;
-    int ret=0;
-    int delay;
-    if ((fp = fopen(filename, "r")) == NULL) //create a file if it doesnt exist
-        return 1;
-
-
-
-
-    while((fgets(buffer,1024,fp))!=NULL){
-        delay=0;
-        if(strncmp(buffer,"Time:",5)==0){
-            p=strchr(buffer,'D');
-            ret= sscanf(p,"Delay %d",&delay);
-            if(fgets(buffer,1024,fp)==NULL){
-                ret=-1;
-                break;
-            }
-
-            if (buffer[0]=='\n'){
-                if(fgets(buffer,1024,fp)==NULL){
-                    ret=-1;
-                    break;
-                }
-            }
-
-        }
-        temp = (Cpu_list *) calloc(1, sizeof(Cpu_list));
-        if (temp == NULL) {
-            printf("calloc error %d \n", errno);
-            free(temp);
-            ret=-1;
-            break;
-        }
-        temp->next=NULL;
-        temp->delay_time=delay;
-        if(sscanf(buffer,"%f %f %f %f",&(temp)->data[0],&(temp)->data[1],&(temp)->data[2],&(temp)->data[3])==4){
-            if((*array)==NULL){
-                (*array) = temp;
-            }
-            else{
-                Cpu_list *temp_p=(*array);
-                while(temp_p->next!=NULL){
-                    temp_p=temp_p->next;
-                }
-                temp_p->next=temp;
-
-
-            }
-//            temp->next = (*array);
-//            (*array) = temp;
-            list_num_size++;
-        }
-        else{
-            printf("sscanf error  \n");
-            free(temp);
-            ret=-1;
-            break;
-        }
-        count+=delay;
-
-
-
-
-    }
-
-
-
-
-    fclose(fp);
-    return ret;
-
-}
 void draw_lines(cairo_t *cr, double height, double font_size, Cpu_list *array){
 
     Cpu_list *temp = array;
-    double prev = height - font_size; //zero
+    double prev = height - 2*font_size; //zero
     double step = 0;
     int count_temp=0;
     int step_count=0;
@@ -260,7 +192,7 @@ void draw_lines(cairo_t *cr, double height, double font_size, Cpu_list *array){
 
 
 
-    for (int j = 0; j <count/250; j++) {
+    for (int j = 0; j <=count/INCREMENT; j++) {
 
 
 
@@ -306,17 +238,17 @@ void draw_time(cairo_t *cr, int r, double width, double height, double font_size
     cairo_show_text(cr, "0");
     step=6 * font_size;
     cairo_translate(cr,step,0);
-//    step_count+=step;
+    step_count+=step;
 //    step=6 * font_size*(temp->delay_time/250);
 //    cairo_translate(cr,step,0);
 //    step_count+=step;
 //    count_temp +=  temp->delay_time;
 //    temp=temp->next;
-    for (int j = 0; j </*list_num_size-1*/ count/250; j++) {
+    for (int j = 0; j </*list_num_size-1*/ count/INCREMENT; j++) {
         memset(buffer,0,sizeof(buffer));
 
         cairo_move_to(cr, 3 * font_size, prev);
-        count_temp +=  250;
+        count_temp +=  INCREMENT;
         step=6 * font_size;
         sprintf(buffer,"%d",count_temp);
         cairo_show_text(cr, buffer);
@@ -372,7 +304,7 @@ void
 draw_graph(cairo_t *cr, int r, double width, double height, double font_size, double time_step, Cpu_list *array) {
 
     Cpu_list *temp = array;
-    double prev = height - font_size; //zero
+    double prev = height - 2*font_size; //zero
     double step = 0;
     double step_counter=0;
     double delay=0;
@@ -427,7 +359,7 @@ draw_graph(cairo_t *cr, int r, double width, double height, double font_size, do
 
         percentage = ((height - font_size) / 100) * peak;
        // step = (width - 3 * font_size - 3 * font_size) / (temp->delay_time);
-       step=6 * font_size*(delay/250);
+       step=6 * font_size*(delay/INCREMENT);
 
         step_counter+=step;
 
@@ -447,7 +379,7 @@ draw_graph(cairo_t *cr, int r, double width, double height, double font_size, do
     }
 
 
-    cairo_line_to(cr, 3 * font_size, height - font_size);/* the last line always touches the floor*/
+  //  cairo_line_to(cr, 3 * font_size, height - font_size);/* the last line always touches the floor*/
 
     cairo_stroke(cr);
 

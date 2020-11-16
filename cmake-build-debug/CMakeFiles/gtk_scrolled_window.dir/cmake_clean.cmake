@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/gtk_scrolled_window.dir/main.c.o"
   "CMakeFiles/gtk_scrolled_window.dir/drawing.c.o"
+  "CMakeFiles/gtk_scrolled_window.dir/reading.c.o"
   "gtk_scrolled_window.pdb"
   "gtk_scrolled_window"
 )

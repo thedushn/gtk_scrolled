@@ -6,6 +6,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_C
   "/home/dushn/Desktop/gtk_scrolled_window/drawing.c" "/home/dushn/Desktop/gtk_scrolled_window/cmake-build-debug/CMakeFiles/gtk_scrolled_window.dir/drawing.c.o"
   "/home/dushn/Desktop/gtk_scrolled_window/main.c" "/home/dushn/Desktop/gtk_scrolled_window/cmake-build-debug/CMakeFiles/gtk_scrolled_window.dir/main.c.o"
+  "/home/dushn/Desktop/gtk_scrolled_window/reading.c" "/home/dushn/Desktop/gtk_scrolled_window/cmake-build-debug/CMakeFiles/gtk_scrolled_window.dir/reading.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

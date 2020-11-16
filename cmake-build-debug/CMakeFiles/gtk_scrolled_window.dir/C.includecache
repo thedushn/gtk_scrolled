@@ -19,12 +19,16 @@ stdbool.h
 -
 drawing.h
 /home/dushn/Desktop/gtk_scrolled_window/drawing.h
+reading.h
+/home/dushn/Desktop/gtk_scrolled_window/reading.h
 
 /home/dushn/Desktop/gtk_scrolled_window/drawing.h
 cairo.h
 -
 gtk/gtk.h
 -
+reading.h
+/home/dushn/Desktop/gtk_scrolled_window/reading.h
 
 /home/dushn/Desktop/gtk_scrolled_window/main.c
 gtk/gtk.h
@@ -32,6 +36,32 @@ gtk/gtk.h
 stdlib.h
 -
 math.h
+-
+stdbool.h
+-
+drawing.h
+/home/dushn/Desktop/gtk_scrolled_window/drawing.h
+reading.h
+/home/dushn/Desktop/gtk_scrolled_window/reading.h
+glib.h
+-
+glib/gprintf.h
+-
+
+/home/dushn/Desktop/gtk_scrolled_window/reading.c
+stdlib.h
+-
+errno.h
+-
+stdint.h
+-
+inttypes.h
+-
+reading.h
+/home/dushn/Desktop/gtk_scrolled_window/reading.h
+
+/home/dushn/Desktop/gtk_scrolled_window/reading.h
+memory.h
 -
 drawing.h
 /home/dushn/Desktop/gtk_scrolled_window/drawing.h
@@ -1706,6 +1736,14 @@ glib/gtypes.h
 
 /usr/include/glib-2.0/glib/gprimes.h
 glib/gtypes.h
+-
+
+/usr/include/glib-2.0/glib/gprintf.h
+glib.h
+-
+stdio.h
+-
+stdarg.h
 -
 
 /usr/include/glib-2.0/glib/gqsort.h
