@@ -6,6 +6,8 @@
 
 #IncludeRegexTransform: 
 
+/home/dushn/Desktop/gtk_scrolled_window/common.h
+
 /home/dushn/Desktop/gtk_scrolled_window/drawing.c
 stdio.h
 -
@@ -57,14 +59,16 @@ stdint.h
 -
 inttypes.h
 -
+stdio.h
+-
 reading.h
 /home/dushn/Desktop/gtk_scrolled_window/reading.h
 
 /home/dushn/Desktop/gtk_scrolled_window/reading.h
 memory.h
 -
-drawing.h
-/home/dushn/Desktop/gtk_scrolled_window/drawing.h
+common.h
+/home/dushn/Desktop/gtk_scrolled_window/common.h
 
 /usr/include/atk-1.0/atk/atk-enum-types.h
 atk/atkversion.h

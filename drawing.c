@@ -26,8 +26,8 @@ void do_drawing_cpu2(GtkWidget *widget, cairo_t *cr, guint time_step, Cpu_list *
   //  gtk_widget_get_size_request(widget,&width,&height);
     width=gtk_widget_get_allocated_width(window);
     height=gtk_widget_get_allocated_height(window);
-    gtk_widget_set_size_request(widget,(gint)((count/250)*(6*font_size)+6*font_size) ,0);
-   size_scale=  gtk_adjustment_get_upper(adj);
+    gtk_widget_set_size_request(widget,(gint)((count/250)*(6*font_size)+12*font_size) ,0);
+   upper=  gtk_adjustment_get_upper(adj)-gtk_adjustment_get_page_size(adj);
   //  printf("size %.0f\n",size_scale);
   //  size_scale=  gtk_adjustment_get_upper(adj);
   //  printf("size %.0f\n",size_scale);
@@ -94,8 +94,6 @@ void do_drawing_cpu2(GtkWidget *widget, cairo_t *cr, guint time_step, Cpu_list *
 
   // writing_seconds(cr, width, height, font_size, 3);
 
-
-
 }
 gboolean on_draw_event(GtkWidget *widget, cairo_t *cr,Cpu_list *array1) {
 
@@ -152,11 +150,18 @@ void draw_percentages(cairo_t *cr, double height, double font_size, double posit
 
     double prev = height - 2*font_size; //zero
     double temp=2*font_size;
-  //  printf("Position %d\n",(int )position);
+    double temp2=gtk_adjustment_get_upper(adj);
+    printf("Position %f  %f\n",position,temp2);
     cairo_set_font_size(cr, font_size);
 
     cairo_set_source_rgb(cr, 0, 1, 1);
-    cairo_rectangle(cr,position,height-4*font_size,3*font_size-2,-height);
+//    if(position==upper){
+//        printf("hello there dumb fuck \n");
+//        cairo_rectangle(cr,position,height-2*font_size,6*font_size,-height);
+//    }else{
+        cairo_rectangle(cr,position,height-2*font_size,3*font_size-2,-height);
+ //   }
+
     cairo_fill(cr);
     cairo_move_to(cr, position, font_size);
     cairo_set_source_rgb(cr, 0, 0, 0);
@@ -232,7 +237,7 @@ void draw_time(cairo_t *cr, int r, double width, double height, double font_size
         cairo_set_source_rgb(cr, 1, 0, 0);//rgb
 
 
-    char buffer[1000];
+    char buffer[64];
 
     cairo_move_to(cr, 3 * font_size, prev);
     cairo_show_text(cr, "0");
@@ -244,12 +249,13 @@ void draw_time(cairo_t *cr, int r, double width, double height, double font_size
 //    step_count+=step;
 //    count_temp +=  temp->delay_time;
 //    temp=temp->next;
+    step=6 * font_size;
     for (int j = 0; j </*list_num_size-1*/ count/INCREMENT; j++) {
         memset(buffer,0,sizeof(buffer));
 
         cairo_move_to(cr, 3 * font_size, prev);
         count_temp +=  INCREMENT;
-        step=6 * font_size;
+
         sprintf(buffer,"%d",count_temp);
         cairo_show_text(cr, buffer);
         cairo_translate(cr,step,0);

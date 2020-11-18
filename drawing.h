@@ -9,18 +9,17 @@
 #include <gtk/gtk.h>
 #include "reading.h"
 
-#define  CPU_NUM 4
-#define FONT 60
-#define INCREMENT 250
-int list_num_size;
-int list_num_size_net;
+
+
 GtkWidget *window;
 GtkWidget *scrolled_window;
+GtkWidget *scrolled_window2;
 GtkWidget *viewport;
+GtkWidget *viewport2;
 GtkAdjustment *adj;
-int count;
-__uint64_t max_number_net;
+
 double value;
+double upper;
 cairo_t *t;
 
 
