@@ -7,8 +7,9 @@
 
 
 #include <memory.h>
-#include "drawing.h"
 #include "common.h"
+
+
 
 int cpu_read(Cpu_list **array);
 int netw_read(Network **array, __uint64_t *max_number);
