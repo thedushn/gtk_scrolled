@@ -24,9 +24,9 @@ void do_drawing_cpu2(GtkWidget *widget, cairo_t *cr, guint time_step, Cpu_list *
     double size_scale=  gtk_adjustment_get_upper(adj);
   //  printf("size %.0f\n",size_scale);
   //  gtk_widget_get_size_request(widget,&width,&height);
-    width=gtk_widget_get_allocated_width(window);
-    height=gtk_widget_get_allocated_height(window);
-    gtk_widget_set_size_request(widget,(gint)((count/250)*(6*font_size)+12*font_size) ,0);
+    width=gtk_widget_get_allocated_width(scrolled_window);
+    height=gtk_widget_get_allocated_height(scrolled_window);
+    gtk_widget_set_size_request(widget,(gint)((count/250)*(6*font_size)+18*font_size) ,0);
    upper=  gtk_adjustment_get_upper(adj)-gtk_adjustment_get_page_size(adj);
   //  printf("size %.0f\n",size_scale);
   //  size_scale=  gtk_adjustment_get_upper(adj);
@@ -95,17 +95,39 @@ void do_drawing_cpu2(GtkWidget *widget, cairo_t *cr, guint time_step, Cpu_list *
   // writing_seconds(cr, width, height, font_size, 3);
 
 }
-gboolean on_draw_event(GtkWidget *widget, cairo_t *cr,Cpu_list *array1) {
+gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, Cpu_list *array1) {
+    double height,width;
+    double value;
+    GtkAdjustment *adj_p;
+    if(widget==graph){
+        height = gtk_widget_get_allocated_height(scrolled_window);
+        width = gtk_widget_get_allocated_width(scrolled_window);
+        printf("windwo  %f %f \n",height,width);
+        value=value1;
+        adj_p=adj;
+    }
+    else if(widget==graph2){
+        height = gtk_widget_get_allocated_height(scrolled_window2);
+        width = gtk_widget_get_allocated_width(scrolled_window2);
+        value=value2;
+        printf("windwo 2 %f %f \n",height,width);
+        adj_p=adj2;
+    }
+    else{
+        height = gtk_widget_get_allocated_height(scrolled_window3);
+        width = gtk_widget_get_allocated_width(scrolled_window3);
+        value=value3;
+        printf("windwo 3 %f %f \n",height,width);
+        adj_p=adj3;
+    }
 
-
-   double height= gtk_widget_get_allocated_height(window);
 
 
 
 
 
     do_drawing_cpu2(widget, cr,1000,array1);
-    draw_percentages(cr,height,10,value);
+    draw_percentages(cr, height, 10, value, adj_p);
     draw_lines(cr,height-20,10,array1);
 
     return true;
@@ -113,7 +135,7 @@ gboolean on_draw_event(GtkWidget *widget, cairo_t *cr,Cpu_list *array1) {
 gboolean on_draw_event2(GtkWidget *widget, cairo_t *cr) {
 
   double  height=gtk_widget_get_allocated_height(window);
-    draw_percentages(cr, height, 10, value);
+  //  draw_percentages(cr, height, 10, value);
     return true;
 }
 void writing_seconds(cairo_t *cr, double width, double height, double font_size, int i) {
@@ -146,11 +168,11 @@ void writing_seconds(cairo_t *cr, double width, double height, double font_size,
 
 
 }
-void draw_percentages(cairo_t *cr, double height, double font_size, double position) {
+void draw_percentages(cairo_t *cr, double height, double font_size, double position, GtkAdjustment *adj_p) {
 
     double prev = height - 2*font_size; //zero
-    double temp=2*font_size;
-    double temp2=gtk_adjustment_get_upper(adj);
+
+    double temp2=gtk_adjustment_get_upper(adj_p);
     printf("Position %f  %f\n",position,temp2);
     cairo_set_font_size(cr, font_size);
 
@@ -159,20 +181,20 @@ void draw_percentages(cairo_t *cr, double height, double font_size, double posit
 //        printf("hello there dumb fuck \n");
 //        cairo_rectangle(cr,position,height-2*font_size,6*font_size,-height);
 //    }else{
-        cairo_rectangle(cr,position,height-2*font_size,3*font_size-2,-height);
+        cairo_rectangle(cr,position,height-3*font_size,3*font_size-2,-height);
  //   }
 
     cairo_fill(cr);
     cairo_move_to(cr, position, font_size);
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_show_text(cr, "100%");
-    cairo_move_to(cr, position, (height - temp) / 4);
+    cairo_move_to(cr, position, prev / 4);
     cairo_show_text(cr, "75%");
-    cairo_move_to(cr, position, (height - temp) / 4 * 2);
+    cairo_move_to(cr, position, prev / 4 * 2);
     cairo_show_text(cr, "50%");
-    cairo_move_to(cr, position, (height - temp) / 4 * 3);
+    cairo_move_to(cr, position, prev / 4 * 3);
     cairo_show_text(cr, "25%");
-    cairo_move_to(cr, position, height - 2*temp);
+    cairo_move_to(cr, position, prev-2*font_size);
     cairo_show_text(cr, "0%");
     cairo_stroke(cr);
 

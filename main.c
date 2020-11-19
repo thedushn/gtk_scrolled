@@ -7,8 +7,6 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 
-GtkWidget *graph;
-GtkWidget *graph2;
 
 
 
@@ -37,8 +35,8 @@ motion_notify_event( GtkWidget *widget, GdkEventMotion *event )
    gchar *s=NULL;
 
 
-   // printf("hello there \n");
- //   printf("we moved %f %f\n",event->x,event->y);
+  //  printf("hello there \n");
+  //  printf("we moved %f %f\n",event->x,event->y);
     if(event->type==GDK_MOTION_NOTIFY){
       //  gtk_widget_set_has_tooltip(window,FALSE);
         x=event->x;
@@ -110,61 +108,83 @@ gboolean scroll_ocured(GtkScrolledWindow *widget,GtkScrollType scrollType, gbool
     printf("we are here \n");
     return TRUE;
 }
-void value_changed(){
+void value_changed( GtkAdjustment *adj_p) {
 
-    int a=(int)gtk_adjustment_get_value(adj);
+    int a=(int)gtk_adjustment_get_value(adj_p);
     int c=0;
+    double *value;
+    GtkWidget *widget;
+    if(adj_p==adj){
+        value=&value1;
 
-    printf("page_increment %f\n",gtk_adjustment_get_page_increment(adj));
-  //  printf("window width %d\n",gtk_widget_get_allocated_width(window));
-    printf("page_size %f\n",gtk_adjustment_get_page_size(adj));
-    printf("step %f\n",gtk_adjustment_get_step_increment(adj));
-    printf("step %f\n",gtk_adjustment_get_step_increment(adj));
-   // printf("value %f\n",gtk_adjustment_get_value(adj));
-    upper= (gtk_adjustment_get_upper(adj)-gtk_adjustment_get_page_size(adj));
-    int temp=(int)(gtk_adjustment_get_upper(adj)-gtk_adjustment_get_page_size(adj));
-    printf("a %d value %f upper %d \n",a,value,temp);
-    c=(int)(a-value);
-  //  printf("c %d\n",c);
+        widget=graph;
+    }else if(adj_p==adj2){
+        value=&value2;
+        widget=graph2;
+        printf("window 2 \n");
+    }
+    else{
+        value=&value3;
+        widget=graph3;
+        printf("window 3 \n");
+    }
+    printf("page_increment %f\n",gtk_adjustment_get_page_increment(adj_p));
+
+    printf("page_size %f\n",gtk_adjustment_get_page_size(adj_p));
+    printf("step %f\n",gtk_adjustment_get_step_increment(adj_p));
+
+
+    upper= (gtk_adjustment_get_upper(adj_p)-gtk_adjustment_get_page_size(adj_p));
+    int temp=(int)(gtk_adjustment_get_upper(adj_p)-gtk_adjustment_get_page_size(adj_p));
+    printf("a %d value %f upper %d \n",a,*value,temp);
+    c=(int)(a-(*value));
+
+    int print;
     if((c)>0){//got bigger
 
         if(c>FONT){ //bigger then one increment
             if(a==temp){
-                printf("here we are\n");
-                value=a-FONT;
-                gtk_adjustment_set_value(adj,value);
+                    printf("bigger\n");
+                printf(" value %f u\n",*value);
+                (*value)=a/FONT;
+                if((print=(int)fmod(a,FONT))>FONT/2 ? ((*value)=((*value)*FONT)-FONT):((*value)=((*value)*FONT)));
+                print=(int)fmod(a,FONT);
+                printf("fmod %d \n",print);
+
+                //((*value)=((*value)*FONT));
+                gtk_adjustment_set_value(adj_p,(*value));
+                printf(" value %f u\n",*value);
+                gtk_widget_queue_draw(widget);
                 return;
             }
             c=a/FONT;//clipping
-            value=c*FONT;
+            (*value)=c*FONT;
 
-            gtk_adjustment_set_value(adj,value);
-            gtk_widget_queue_draw(graph);
+            gtk_adjustment_set_value(adj_p,(*value));
+            gtk_widget_queue_draw(widget);
             return;
         }
         else{
+
             if(a==temp){
-                printf("here we are numbero dos\n");
-                double temp1;
-                int x=a;
-                temp1=fmod(a,FONT);
-                printf("temp1 %f \n",temp1);
-                if(temp1>=FONT/2){
-                    x=a/FONT;
-                    x=(x*FONT)+60;
-                }
-                else{
-                    x=a/FONT;
-                    x=(x*FONT);
-                }
-                printf("x %d \n",x);
-                    value=x;
-                gtk_adjustment_set_value(adj,value);
+
+                printf("smaller\n");
+                (*value)=a/FONT;
+                if((print=(int)fmod(a,FONT))>FONT/2 ? ((*value)=((*value)*FONT)-FONT):((*value)=((*value)*FONT)));
+                print=(int)fmod(a,FONT);
+                printf("fmod %d \n",print);
+                printf("fmod %d \n",print%10);
+               // ((*value)=((*value)*FONT));
+                printf(" value %f u\n",*value);
+
+
+                gtk_adjustment_set_value(adj_p,(*value));
+                gtk_widget_queue_draw(widget);
                 return;
             }
-            value+=FONT;
-            gtk_adjustment_set_value(adj,value);
-            gtk_widget_queue_draw(graph);
+            (*value)+=FONT;
+            gtk_adjustment_set_value(adj_p,(*value));
+            gtk_widget_queue_draw(widget);
             return;
 
         }
@@ -172,15 +192,15 @@ void value_changed(){
     else if(c<0){//got smaller
         if(c<-FONT){ //bigger then one increment
             c=a/FONT;//clipping
-            value=c*FONT;
-            gtk_adjustment_set_value(adj,value);
-            gtk_widget_queue_draw(graph);
+            (*value)=c*FONT;
+            gtk_adjustment_set_value(adj_p,(*value));
+            gtk_widget_queue_draw(widget);
             return;
         }
         else{
-            value-=FONT;
-            gtk_adjustment_set_value(adj,value);
-            gtk_widget_queue_draw(graph);
+            (*value)-=FONT;
+            gtk_adjustment_set_value(adj_p,(*value));
+            gtk_widget_queue_draw(widget);
             return;
 
         }
@@ -188,7 +208,7 @@ void value_changed(){
 
     }
     else{//stayed the same
-        gtk_widget_queue_draw(graph);
+        gtk_widget_queue_draw(widget);
         return;
     }
 
@@ -211,30 +231,37 @@ activate (GtkApplication *app,
 
 
     GtkWidget *vbox;
-
+    GtkWidget *hbox;
+    vbox            = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    hbox            = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, 1, 1, 0);
     graph=gtk_drawing_area_new();
     graph2=gtk_drawing_area_new();
-    GtkWidget *view;
-    GtkTextBuffer *buffer;
+    graph3=gtk_drawing_area_new();
 
-    GtkWidget* frame1      = gtk_frame_new(NULL);
-    GtkWidget* frame2      = gtk_frame_new(NULL);
 
-    view = gtk_text_view_new ();
-    vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL,2);
 
-    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
 
-    gtk_text_buffer_set_text (buffer, "Hello, this is some text", -1);
 
     viewport = gtk_viewport_new (NULL,NULL);
     viewport2 = gtk_viewport_new (NULL,NULL);
+    viewport3 = gtk_viewport_new (NULL,NULL);
+
     gtk_container_add (GTK_CONTAINER(viewport), graph);
+
     gtk_container_add (GTK_CONTAINER(viewport2), graph2);
+
+    gtk_container_add (GTK_CONTAINER(viewport3), graph3);
+
+
+
+
+
+
     /* Create a window with a title, and a default size */
     window = gtk_application_window_new (app);
     gtk_window_set_title (GTK_WINDOW (window), "ScrolledWindow Example");
-    gtk_window_set_default_size (GTK_WINDOW (window), 1000, 800);
+    gtk_window_set_default_size (GTK_WINDOW (window), 462, 704);
 
     /* Create the scrolled window. Usually NULL is passed for both parameters so
      * that it creates the horizontal/vertical adjustments automatically. Setting
@@ -243,17 +270,29 @@ activate (GtkApplication *app,
      */
     scrolled_window = gtk_scrolled_window_new (NULL, NULL);
     scrolled_window2 = gtk_scrolled_window_new (NULL, NULL);
+    scrolled_window3 = gtk_scrolled_window_new (NULL, NULL);
    // scrollbar=gtk_scrollbar_new(GTK_ORIENTATION_HORIZONTAL,(GtkAdjustment*)adj);
 
     /* Set the border width */
+    gtk_container_set_border_width (GTK_CONTAINER (scrolled_window), 10);
     gtk_container_set_border_width (GTK_CONTAINER (scrolled_window2), 10);
-    gtk_container_set_border_width (GTK_CONTAINER (scrolled_window2), 10);
+    gtk_container_set_border_width (GTK_CONTAINER (scrolled_window3), 10);
     /* Extract our desired image from a file that we have */
     //image = gtk_image_new_from_file ("slika.png");
     /* And add it to the scrolled window */
    // gtk_container_add (GTK_CONTAINER (scrolled_window), graph);
-   gtk_container_add (GTK_CONTAINER(scrolled_window), viewport);
-   gtk_container_add (GTK_CONTAINER(scrolled_window2), viewport2);
+    ////TO DO: fixerino
+//    gtk_container_add(GTK_CONTAINER(frame1), viewport);
+//    gtk_container_add(GTK_CONTAINER(frame2), viewport2);
+//   gtk_container_add (GTK_CONTAINER(scrolled_window), frame1);
+//
+//   gtk_container_add (GTK_CONTAINER(scrolled_window2), frame2);
+
+    gtk_container_add (GTK_CONTAINER(scrolled_window), viewport);
+    gtk_container_add (GTK_CONTAINER(scrolled_window2), viewport2);
+    gtk_container_add (GTK_CONTAINER(scrolled_window3), viewport3);
+
+    ///
    // gtk_container_add (GTK_CONTAINER(scrolled_window), graph);
  //   gtk_container_add (GTK_CONTAINER(scrolled_window), scrollbar);
     /* Set the policy of the horizontal and vertical scrollbars to automatic.
@@ -269,30 +308,50 @@ activate (GtkApplication *app,
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window2),
                                     GTK_POLICY_AUTOMATIC,
                                     GTK_POLICY_NEVER);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window3),
+                                    GTK_POLICY_AUTOMATIC,
+                                    GTK_POLICY_NEVER);
     gtk_widget_set_hexpand(GTK_WIDGET(scrolled_window), TRUE);
     gtk_widget_set_vexpand(GTK_WIDGET(scrolled_window), TRUE);
     gtk_widget_set_hexpand(GTK_WIDGET(scrolled_window2), TRUE);
     gtk_widget_set_vexpand(GTK_WIDGET(scrolled_window2), TRUE);
+    gtk_widget_set_hexpand(GTK_WIDGET(scrolled_window3), TRUE);
+    gtk_widget_set_vexpand(GTK_WIDGET(scrolled_window3), TRUE);
+
+    gtk_box_pack_start(GTK_BOX(hbox), scrolled_window, 0, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), scrolled_window3, 0, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), scrolled_window2,0, TRUE, 0);
+
 
     //gtk_box_pack_start(GTK_BOX(vbox), scrolled_window, TRUE, FALSE, 0);
    // gtk_container_add (GTK_CONTAINER (vbox), scrolled_window);
   //  gtk_container_add (GTK_CONTAINER (vbox), scrolled_window2);
-    gtk_container_add (GTK_CONTAINER (window), scrolled_window);
+  //  gtk_container_add (GTK_CONTAINER (window), scrolled_window);
+    gtk_container_add (GTK_CONTAINER (window), vbox);
 
 
-    g_signal_connect (G_OBJECT (graph), "draw", G_CALLBACK (on_draw_event), array);
-    //g_signal_connect (G_OBJECT (graph2), "draw", G_CALLBACK (on_draw_event), array);
+    g_signal_connect (G_OBJECT (graph), "draw", G_CALLBACK(on_draw_event), array);
+    g_signal_connect (G_OBJECT (graph2), "draw", G_CALLBACK(on_draw_event), array);
+    g_signal_connect (G_OBJECT (graph3), "draw", G_CALLBACK(on_draw_event), array);
 
 
 
               adj=  gtk_scrollable_get_hadjustment(GTK_SCROLLABLE(viewport));
+              adj2=  gtk_scrollable_get_hadjustment(GTK_SCROLLABLE(viewport2));
+              adj3=  gtk_scrollable_get_hadjustment(GTK_SCROLLABLE(viewport3));
             //  adj=  gtk_scrollable_get_hadjustment(GTK_SCROLLABLE(scrolled_window));
 //    gtk_adjustment_set_page_increment(adj,2*9*10);
 //    gtk_adjustment_set_step_increment(adj,100*10);
 //    gtk_adjustment_set_value(adj,9*10);
 
-    g_signal_connect (G_OBJECT (adj), "value_changed", G_CALLBACK (value_changed), NULL);
+    g_signal_connect (G_OBJECT (adj), "value_changed", G_CALLBACK(value_changed),NULL);
+    g_signal_connect (G_OBJECT (adj2), "value_changed", G_CALLBACK(value_changed),NULL);
+    g_signal_connect (G_OBJECT (adj3), "value_changed", G_CALLBACK(value_changed),NULL);
     g_signal_connect (G_OBJECT (graph), "motion_notify_event",
+                      G_CALLBACK(motion_notify_event), NULL);
+    g_signal_connect (G_OBJECT (graph2), "motion_notify_event",
+                      G_CALLBACK(motion_notify_event), NULL);
+    g_signal_connect (G_OBJECT (graph3), "motion_notify_event",
                       G_CALLBACK(motion_notify_event), NULL);
 
     gtk_widget_set_events (graph, GDK_EXPOSURE_MASK
@@ -300,6 +359,16 @@ activate (GtkApplication *app,
                                          | GDK_BUTTON_PRESS_MASK
                                          | GDK_POINTER_MOTION_MASK
                                          | GDK_POINTER_MOTION_HINT_MASK);
+    gtk_widget_set_events (graph2, GDK_EXPOSURE_MASK
+                                  | GDK_LEAVE_NOTIFY_MASK
+                                  | GDK_BUTTON_PRESS_MASK
+                                  | GDK_POINTER_MOTION_MASK
+                                  | GDK_POINTER_MOTION_HINT_MASK);
+    gtk_widget_set_events (graph3, GDK_EXPOSURE_MASK
+                                   | GDK_LEAVE_NOTIFY_MASK
+                                   | GDK_BUTTON_PRESS_MASK
+                                   | GDK_POINTER_MOTION_MASK
+                                   | GDK_POINTER_MOTION_HINT_MASK);
 
 
     gtk_widget_show_all (window);
@@ -317,7 +386,9 @@ main (int argc, char **argv)
     list_num_size=0;
     list_num_size_net=0;
     count=0;
-    value=0;
+    value1=0;
+    value2=0;
+    value3=0;
     Cpu_list *temp=NULL;
     Network *temp_net=NULL;
     array=NULL;

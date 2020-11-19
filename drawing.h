@@ -14,11 +14,21 @@
 GtkWidget *window;
 GtkWidget *scrolled_window;
 GtkWidget *scrolled_window2;
+GtkWidget *scrolled_window3;
 GtkWidget *viewport;
 GtkWidget *viewport2;
+GtkWidget *viewport3;
 GtkAdjustment *adj;
+GtkAdjustment *adj2;
+GtkAdjustment *adj3;
 
-double value;
+GtkWidget *graph;
+GtkWidget *graph2;
+GtkWidget *graph3;
+
+double value1;
+double value2;
+double value3;
 double upper;
 cairo_t *t;
 
@@ -32,8 +42,8 @@ void do_drawing_cpu2(GtkWidget *widget, cairo_t *cr, guint time_step, Cpu_list *
 void
 draw_graph(cairo_t *cr, int r, double width, double height, double font_size, double time_step, Cpu_list *array);
 
-gboolean on_draw_event(GtkWidget *widget, cairo_t *cr,Cpu_list *array);
-void draw_percentages(cairo_t *cr, double height, double font_size, double position);
+gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, Cpu_list *array);
+void draw_percentages(cairo_t *cr, double height, double font_size, double position, GtkAdjustment *adj_p);
 void draw_frame(cairo_t *cr, double width, double height, double font_size, int i);
 void writing_seconds(cairo_t *cr, double width, double height, double font_size, int i);
 gboolean on_draw_event2(GtkWidget *widget, cairo_t *cr);
