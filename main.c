@@ -13,54 +13,192 @@
 
 Cpu_list *array=NULL;
 Network *net_array=NULL;
-gboolean
-user_function (GtkWidget  *widget,
-               int         x,
-               int         y,
-               gboolean    keyboard_mode,
-               GtkTooltip *tooltip,
-               gpointer    user_data){
-
-    return true;
-};
+Memory_list *memory_array=NULL;
 static gboolean
-motion_notify_event( GtkWidget *widget, GdkEventMotion *event )
+motion_notify_event_net( GtkWidget *widget, GdkEventMotion *event )
 {
-    double x, y;
+    double x;
+    double delay=0;
+    int a=0;
+    Network *temp=net_array;
+
+    gchar tesxas[100];
+
+
+
+
+
+    if(event->type==GDK_MOTION_NOTIFY){
+
+        x=event->x;
+
+        if(x<FONT-2){
+            return TRUE;
+        }
+        if(fmod(x,FONT)<=2 && fmod(x,FONT)>=0 ){
+
+            if(x<=FONT+2){
+
+                g_sprintf (tesxas,"Transmitted %s \n"
+                                   "Received %s ",
+                           g_format_size_full(0,G_FORMAT_SIZE_IEC_UNITS),
+                           g_format_size_full(0,G_FORMAT_SIZE_IEC_UNITS)
+
+                );
+                gtk_widget_set_tooltip_markup (window,
+                                               tesxas);
+
+                return TRUE;
+            }
+
+            a=(int)((x/FONT)-1)*INCREMENT;
+
+
+            while(temp->next!=NULL){
+                delay+=temp->delay_time;
+                if(delay==a){
+                    break;
+                }
+                if(delay>a){
+                    return TRUE;
+                }
+                temp=temp->next;
+            }
+
+            g_sprintf (tesxas,"Transmitted %s \n"
+                               "Received %s ",
+                       g_format_size_full(temp->transmited_bytes,G_FORMAT_SIZE_IEC_UNITS),
+                       g_format_size_full(temp->received_bytes,G_FORMAT_SIZE_IEC_UNITS)
+
+            );
+
+            gtk_widget_set_tooltip_markup (window,
+                                           tesxas);
+
+
+
+        }
+
+    }
+
+
+
+
+
+    return TRUE;
+}
+
+static gboolean
+motion_notify_event_memory( GtkWidget *widget, GdkEventMotion *event )
+{
+    double x;
+    double delay=0;
+    int a=0;
+    Memory_list *temp=memory_array;
+
+    gchar tesxas[100];
+
+
+
+
+
+    if(event->type==GDK_MOTION_NOTIFY){
+
+        x=event->x;
+
+        if(x<FONT-2){
+            return TRUE;
+        }
+        if(fmod(x,FONT)<=2 && fmod(x,FONT)>=0 ){
+
+            if(x<=FONT+2){
+
+                g_sprintf (tesxas,"Memory_used %s \nMemory_total %s \n"
+                                   "Swap_used %s \nSwap_total %s",
+                           g_format_size_full(0,G_FORMAT_SIZE_IEC_UNITS),
+                           g_format_size_full(temp->memory_total,G_FORMAT_SIZE_IEC_UNITS),
+                           g_format_size_full(0,G_FORMAT_SIZE_IEC_UNITS),
+                           g_format_size_full(temp->swap_total,G_FORMAT_SIZE_IEC_UNITS)
+                );
+                gtk_widget_set_tooltip_markup (window,
+                                               tesxas);
+
+                return TRUE;
+            }
+
+            a=(int)((x/FONT)-1)*INCREMENT;
+
+
+            while(temp->next!=NULL){
+                delay+=temp->delay_time;
+                if(delay==a){
+                    break;
+                }
+                if(delay>a){
+                    return TRUE;
+                }
+                temp=temp->next;
+            }
+
+            g_sprintf (tesxas,"Memory_used %s \nMemory_total %s \n"
+                    "Swap_used %s \nSwap_total %s",
+                       g_format_size_full(temp->memory_used,G_FORMAT_SIZE_IEC_UNITS),
+                       g_format_size_full(temp->memory_total,G_FORMAT_SIZE_IEC_UNITS),
+                       g_format_size_full(temp->swap_used,G_FORMAT_SIZE_IEC_UNITS),
+                       g_format_size_full(temp->swap_total,G_FORMAT_SIZE_IEC_UNITS)
+            );
+
+            gtk_widget_set_tooltip_markup (window,
+                                           tesxas);
+
+
+
+        }
+
+    }
+
+
+
+
+
+    return TRUE;
+}
+
+static gboolean
+motion_notify_event_cpu(GtkWidget *widget, GdkEventMotion *event, GtkWidget *window_p)
+{
+    double x;
     double delay=0;
     int a=0;
     Cpu_list *temp=array;
 
    gchar tesxas[100];
-   gchar *s=NULL;
 
 
-  //  printf("hello there \n");
-  //  printf("we moved %f %f\n",event->x,event->y);
+
+
     if(event->type==GDK_MOTION_NOTIFY){
-      //  gtk_widget_set_has_tooltip(window,FALSE);
+
         x=event->x;
-       //  printf("we moved %f %f\n",event->x,event->y);
-        if(x<28){
+
+        if(x<FONT-2){
             return TRUE;
         }
-        if(fmod(x,30)<=2 && fmod(x,30)>=0 ){
-           // printf("hello tooltip\n");
-          //  printf("we moved %f %f\n",event->x,event->y);
-            if(x<=32){
+        if(fmod(x,FONT)<=2 && fmod(x,FONT)>=0 ){
+
+            if(x<=FONT+2){
 
                 g_sprintf (tesxas,"Cpu0 %.2f \nCpu1 %.2f \n"
                         "Cpu2 %.2f \nCpu3 %.2f",0.0,0.0,0.0,0.0);
-                gtk_widget_set_tooltip_markup (window,
+                gtk_widget_set_tooltip_markup (window_p,
                                                tesxas);
-                s=  gtk_widget_get_tooltip_markup (window);
-                printf("%s\n",s);
+                printf("%s\n",tesxas);
                 return TRUE;
             }
 
-            a=(int)(x/FONT)*INCREMENT;
+            a=(int)((x/FONT)-1)*INCREMENT;
 
-          ///  printf("which line %d\n",a);
+
            while(temp->next!=NULL){
                 delay+=temp->delay_time;
                if(delay==a){
@@ -71,48 +209,36 @@ motion_notify_event( GtkWidget *widget, GdkEventMotion *event )
                }
                 temp=temp->next;
             }
-        //    delay/=250;
-         //   delay*=60;
-        //    if(((x-delay)<=2 && (x-delay)>=0) ||((x-delay)>=-2 && (x-delay)<=0)){
+
             g_sprintf (tesxas,"Cpu0 %.2f \nCpu1 %.2f \n"
                     "Cpu2 %.2f \nCpu3 %.2f",temp->data[0],temp->data[1],temp->data[2],temp->data[3]);
-          //  gtk_widget_set_has_tooltip(window,TRUE);
-            gtk_widget_set_tooltip_markup (window,
+
+            gtk_widget_set_tooltip_markup (window_p,
                                            tesxas);
-          //  s=  gtk_widget_get_tooltip_markup (window);
-       // printf("%s\n",s);
-          //  gtk_widget_set_has_tooltip(window,TRUE);
+            printf("%s\n",tesxas);
+
 
             }
 
 
 
-      //  }
+
     }
 
-//    if (event->is_hint)
-//        gdk_window_get_device_position (window, ,&x, &y, &state);
-//    else
-//    {
-//        x = event->x;
-//        y = event->y;
-//        state = event->state;
-//    }
+
 
 
 
     return TRUE;
 }
-gboolean scroll_ocured(GtkScrolledWindow *widget,GtkScrollType scrollType, gboolean horizontal,gpointer *gpointer1){
 
-    printf("we are here \n");
-    return TRUE;
-}
 void value_changed( GtkAdjustment *adj_p) {
 
     int a=(int)gtk_adjustment_get_value(adj_p);
     int c=0;
     double *value;
+
+
     GtkWidget *widget;
     if(adj_p==adj){
         value=&value1;
@@ -121,46 +247,45 @@ void value_changed( GtkAdjustment *adj_p) {
     }else if(adj_p==adj2){
         value=&value2;
         widget=graph2;
-        printf("window 2 \n");
+
     }
     else{
         value=&value3;
         widget=graph3;
-        printf("window 3 \n");
+
     }
-    printf("page_increment %f\n",gtk_adjustment_get_page_increment(adj_p));
-
-    printf("page_size %f\n",gtk_adjustment_get_page_size(adj_p));
-    printf("step %f\n",gtk_adjustment_get_step_increment(adj_p));
 
 
-    upper= (gtk_adjustment_get_upper(adj_p)-gtk_adjustment_get_page_size(adj_p));
+
     int temp=(int)(gtk_adjustment_get_upper(adj_p)-gtk_adjustment_get_page_size(adj_p));
     printf("a %d value %f upper %d \n",a,*value,temp);
     c=(int)(a-(*value));
 
-    int print;
+
     if((c)>0){//got bigger
 
         if(c>FONT){ //bigger then one increment
             if(a==temp){
-                    printf("bigger\n");
-                printf(" value %f u\n",*value);
-                (*value)=a/FONT;
-                if((print=(int)fmod(a,FONT))>FONT/2 ? ((*value)=((*value)*FONT)-FONT):((*value)=((*value)*FONT)));
-                print=(int)fmod(a,FONT);
-                printf("fmod %d \n",print);
 
-                //((*value)=((*value)*FONT));
-                gtk_adjustment_set_value(adj_p,(*value));
-                printf(" value %f u\n",*value);
+             (*value)=a/FONT;
+
+                ((*value)=((*value)*FONT));
+
+                value1=value2=value3=(*value);
+                gtk_adjustment_set_value(adj,(*value));
+                gtk_adjustment_set_value(adj2,(*value));
+                gtk_adjustment_set_value(adj3,(*value));
+
                 gtk_widget_queue_draw(widget);
                 return;
             }
             c=a/FONT;//clipping
             (*value)=c*FONT;
 
-            gtk_adjustment_set_value(adj_p,(*value));
+            value1=value2=value3=(*value);
+            gtk_adjustment_set_value(adj,(*value));
+            gtk_adjustment_set_value(adj2,(*value));
+            gtk_adjustment_set_value(adj3,(*value));
             gtk_widget_queue_draw(widget);
             return;
         }
@@ -168,22 +293,24 @@ void value_changed( GtkAdjustment *adj_p) {
 
             if(a==temp){
 
-                printf("smaller\n");
                 (*value)=a/FONT;
-                if((print=(int)fmod(a,FONT))>FONT/2 ? ((*value)=((*value)*FONT)-FONT):((*value)=((*value)*FONT)));
-                print=(int)fmod(a,FONT);
-                printf("fmod %d \n",print);
-                printf("fmod %d \n",print%10);
-               // ((*value)=((*value)*FONT));
-                printf(" value %f u\n",*value);
 
 
-                gtk_adjustment_set_value(adj_p,(*value));
+                 ((*value)=((*value)*FONT));
+
+
+                value1=value2=value3=(*value);
+                gtk_adjustment_set_value(adj,(*value));
+                gtk_adjustment_set_value(adj2,(*value));
+                gtk_adjustment_set_value(adj3,(*value));
                 gtk_widget_queue_draw(widget);
                 return;
             }
             (*value)+=FONT;
-            gtk_adjustment_set_value(adj_p,(*value));
+            value1=value2=value3=(*value);
+            gtk_adjustment_set_value(adj,(*value));
+            gtk_adjustment_set_value(adj2,(*value));
+            gtk_adjustment_set_value(adj3,(*value));
             gtk_widget_queue_draw(widget);
             return;
 
@@ -193,13 +320,19 @@ void value_changed( GtkAdjustment *adj_p) {
         if(c<-FONT){ //bigger then one increment
             c=a/FONT;//clipping
             (*value)=c*FONT;
-            gtk_adjustment_set_value(adj_p,(*value));
+            value1=value2=value3=(*value);
+            gtk_adjustment_set_value(adj,(*value));
+            gtk_adjustment_set_value(adj2,(*value));
+            gtk_adjustment_set_value(adj3,(*value));
             gtk_widget_queue_draw(widget);
             return;
         }
         else{
             (*value)-=FONT;
-            gtk_adjustment_set_value(adj_p,(*value));
+            value1=value2=value3=(*value);
+            gtk_adjustment_set_value(adj,(*value));
+            gtk_adjustment_set_value(adj2,(*value));
+            gtk_adjustment_set_value(adj3,(*value));
             gtk_widget_queue_draw(widget);
             return;
 
@@ -232,12 +365,16 @@ activate (GtkApplication *app,
 
     GtkWidget *vbox;
     GtkWidget *hbox;
+    GtkWidget *hbox2;
     vbox            = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
     hbox            = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
+    hbox2            = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, 1, 1, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox2, 1, 1, 0);
     graph=gtk_drawing_area_new();
     graph2=gtk_drawing_area_new();
     graph3=gtk_drawing_area_new();
+    graph4=gtk_drawing_area_new();
 
 
 
@@ -246,12 +383,15 @@ activate (GtkApplication *app,
     viewport = gtk_viewport_new (NULL,NULL);
     viewport2 = gtk_viewport_new (NULL,NULL);
     viewport3 = gtk_viewport_new (NULL,NULL);
+    viewport4 = gtk_viewport_new (NULL,NULL);
 
     gtk_container_add (GTK_CONTAINER(viewport), graph);
 
     gtk_container_add (GTK_CONTAINER(viewport2), graph2);
 
     gtk_container_add (GTK_CONTAINER(viewport3), graph3);
+    gtk_container_add (GTK_CONTAINER(viewport4), graph4);
+
 
 
 
@@ -261,7 +401,7 @@ activate (GtkApplication *app,
     /* Create a window with a title, and a default size */
     window = gtk_application_window_new (app);
     gtk_window_set_title (GTK_WINDOW (window), "ScrolledWindow Example");
-    gtk_window_set_default_size (GTK_WINDOW (window), 462, 704);
+    gtk_window_set_default_size (GTK_WINDOW (window), 1000, 800);
 
     /* Create the scrolled window. Usually NULL is passed for both parameters so
      * that it creates the horizontal/vertical adjustments automatically. Setting
@@ -271,17 +411,19 @@ activate (GtkApplication *app,
     scrolled_window = gtk_scrolled_window_new (NULL, NULL);
     scrolled_window2 = gtk_scrolled_window_new (NULL, NULL);
     scrolled_window3 = gtk_scrolled_window_new (NULL, NULL);
+    scrolled_window4 = gtk_scrolled_window_new (NULL, NULL);
    // scrollbar=gtk_scrollbar_new(GTK_ORIENTATION_HORIZONTAL,(GtkAdjustment*)adj);
 
     /* Set the border width */
     gtk_container_set_border_width (GTK_CONTAINER (scrolled_window), 10);
     gtk_container_set_border_width (GTK_CONTAINER (scrolled_window2), 10);
     gtk_container_set_border_width (GTK_CONTAINER (scrolled_window3), 10);
+    gtk_container_set_border_width (GTK_CONTAINER (scrolled_window4), 10);
     /* Extract our desired image from a file that we have */
     //image = gtk_image_new_from_file ("slika.png");
     /* And add it to the scrolled window */
    // gtk_container_add (GTK_CONTAINER (scrolled_window), graph);
-    ////TO DO: fixerino
+
 //    gtk_container_add(GTK_CONTAINER(frame1), viewport);
 //    gtk_container_add(GTK_CONTAINER(frame2), viewport2);
 //   gtk_container_add (GTK_CONTAINER(scrolled_window), frame1);
@@ -291,6 +433,7 @@ activate (GtkApplication *app,
     gtk_container_add (GTK_CONTAINER(scrolled_window), viewport);
     gtk_container_add (GTK_CONTAINER(scrolled_window2), viewport2);
     gtk_container_add (GTK_CONTAINER(scrolled_window3), viewport3);
+    gtk_container_add (GTK_CONTAINER(scrolled_window4), viewport4);
 
     ///
    // gtk_container_add (GTK_CONTAINER(scrolled_window), graph);
@@ -311,16 +454,23 @@ activate (GtkApplication *app,
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window3),
                                     GTK_POLICY_AUTOMATIC,
                                     GTK_POLICY_NEVER);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window4),
+                                    GTK_POLICY_AUTOMATIC,
+                                    GTK_POLICY_AUTOMATIC);
     gtk_widget_set_hexpand(GTK_WIDGET(scrolled_window), TRUE);
     gtk_widget_set_vexpand(GTK_WIDGET(scrolled_window), TRUE);
     gtk_widget_set_hexpand(GTK_WIDGET(scrolled_window2), TRUE);
     gtk_widget_set_vexpand(GTK_WIDGET(scrolled_window2), TRUE);
     gtk_widget_set_hexpand(GTK_WIDGET(scrolled_window3), TRUE);
     gtk_widget_set_vexpand(GTK_WIDGET(scrolled_window3), TRUE);
+    gtk_widget_set_hexpand(GTK_WIDGET(scrolled_window4), TRUE);
+    gtk_widget_set_vexpand(GTK_WIDGET(scrolled_window4), TRUE);
 
     gtk_box_pack_start(GTK_BOX(hbox), scrolled_window, 0, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), scrolled_window3, 0, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox), scrolled_window2,0, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox2), scrolled_window2, 0, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox2), scrolled_window4, 0, TRUE, 0);
+    //gtk_box_pack_start(GTK_BOX(vbox), scrolled_window2,0, TRUE, 0);
 
 
     //gtk_box_pack_start(GTK_BOX(vbox), scrolled_window, TRUE, FALSE, 0);
@@ -330,29 +480,31 @@ activate (GtkApplication *app,
     gtk_container_add (GTK_CONTAINER (window), vbox);
 
 
-    g_signal_connect (G_OBJECT (graph), "draw", G_CALLBACK(on_draw_event), array);
-    g_signal_connect (G_OBJECT (graph2), "draw", G_CALLBACK(on_draw_event), array);
-    g_signal_connect (G_OBJECT (graph3), "draw", G_CALLBACK(on_draw_event), array);
+    g_signal_connect (G_OBJECT (graph), "draw", G_CALLBACK(on_draw_event_cpu_mem), array);
+    g_signal_connect (G_OBJECT (graph2), "draw", G_CALLBACK(on_draw_event_cpu_mem), memory_array);
+    g_signal_connect (G_OBJECT (graph3), "draw", G_CALLBACK(on_draw_event_cpu_mem), net_array);
+    g_signal_connect (G_OBJECT (graph4), "draw", G_CALLBACK(on_draw_event_cpu_mem), memory_array);
 
 
 
-              adj=  gtk_scrollable_get_hadjustment(GTK_SCROLLABLE(viewport));
+              adj =  gtk_scrollable_get_hadjustment(GTK_SCROLLABLE(viewport));
               adj2=  gtk_scrollable_get_hadjustment(GTK_SCROLLABLE(viewport2));
               adj3=  gtk_scrollable_get_hadjustment(GTK_SCROLLABLE(viewport3));
-            //  adj=  gtk_scrollable_get_hadjustment(GTK_SCROLLABLE(scrolled_window));
-//    gtk_adjustment_set_page_increment(adj,2*9*10);
-//    gtk_adjustment_set_step_increment(adj,100*10);
-//    gtk_adjustment_set_value(adj,9*10);
+              adj4=  gtk_scrollable_get_hadjustment(GTK_SCROLLABLE(viewport4));
+
 
     g_signal_connect (G_OBJECT (adj), "value_changed", G_CALLBACK(value_changed),NULL);
     g_signal_connect (G_OBJECT (adj2), "value_changed", G_CALLBACK(value_changed),NULL);
     g_signal_connect (G_OBJECT (adj3), "value_changed", G_CALLBACK(value_changed),NULL);
+    g_signal_connect (G_OBJECT (adj4), "value_changed", G_CALLBACK(value_changed),NULL);
     g_signal_connect (G_OBJECT (graph), "motion_notify_event",
-                      G_CALLBACK(motion_notify_event), NULL);
+                      G_CALLBACK(motion_notify_event_cpu), scrolled_window);
     g_signal_connect (G_OBJECT (graph2), "motion_notify_event",
-                      G_CALLBACK(motion_notify_event), NULL);
+                      G_CALLBACK(motion_notify_event_memory), NULL);
     g_signal_connect (G_OBJECT (graph3), "motion_notify_event",
-                      G_CALLBACK(motion_notify_event), NULL);
+                      G_CALLBACK(motion_notify_event_net), NULL);
+    g_signal_connect (G_OBJECT (graph4), "motion_notify_event",
+                      G_CALLBACK(motion_notify_event_memory), NULL);
 
     gtk_widget_set_events (graph, GDK_EXPOSURE_MASK
                                          | GDK_LEAVE_NOTIFY_MASK
@@ -369,10 +521,15 @@ activate (GtkApplication *app,
                                    | GDK_BUTTON_PRESS_MASK
                                    | GDK_POINTER_MOTION_MASK
                                    | GDK_POINTER_MOTION_HINT_MASK);
+    gtk_widget_set_events (graph4, GDK_EXPOSURE_MASK
+                                   | GDK_LEAVE_NOTIFY_MASK
+                                   | GDK_BUTTON_PRESS_MASK
+                                   | GDK_POINTER_MOTION_MASK
+                                   | GDK_POINTER_MOTION_HINT_MASK);
 
 
     gtk_widget_show_all (window);
-    gtk_widget_queue_draw(graph);
+
 }
 
 
@@ -385,14 +542,17 @@ main (int argc, char **argv)
     int status;
     list_num_size=0;
     list_num_size_net=0;
+    list_size_interrupts=0;
     count=0;
     value1=0;
     value2=0;
     value3=0;
     Cpu_list *temp=NULL;
     Network *temp_net=NULL;
+    Memory_list *temp_mem=NULL;
+    Interrupts_List *interrupts_list=NULL;
     array=NULL;
-
+    interrupts_read(&interrupts_list);
    if(!cpu_read(&array)) {
        while(array){
            temp=array;
@@ -401,38 +561,68 @@ main (int argc, char **argv)
 
        }
        array=NULL;
-       temp=NULL;
+
        printf("cpu read erro \n");
        return -1;
    }
-//    if(!netw_read(&net_array, &max_number_net)){
-//        while(net_array){
-//            temp_net=net_array;
-//            net_array=net_array->next;
-//            free(temp_net);
-//
-//        }
-//        net_array=NULL;
-//        temp_net=NULL;
-//        while(array){
-//            temp=array;
-//            array=array->next;
-//            free(temp);
-//
-//        }
-//        array=NULL;
-//        temp=NULL;
-//        printf("network read erro \n");
-//        return -1;
-//    }
+    if(!netw_read(&net_array, &max_number_net)){
+        while(net_array){
+            temp_net=net_array;
+            net_array=net_array->next;
+            free(temp_net);
+
+        }
+        net_array=NULL;
+
+        while(array){
+            temp=array;
+            array=array->next;
+            free(temp);
+
+        }
+        array=NULL;
+
+        printf("network read erro \n");
+        return -1;
+    }
+   if(!memory_read(&memory_array)){
+       while(net_array){
+           temp_net=net_array;
+           net_array=net_array->next;
+           free(temp_net);
+
+       }
+       net_array=NULL;
+
+       while(array){
+           temp=array;
+           array=array->next;
+           free(temp);
+
+       }
+       array=NULL;
+
+       while(memory_array){
+           temp_mem=memory_array;
+           memory_array=memory_array->next;
+           free(temp_mem);
+
+       }
+       memory_array=NULL;
+
+       printf("network read erro \n");
+       return -1;
+   }
 
 
     app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
     g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
 
+
     status = g_application_run (G_APPLICATION (app), argc, argv);
 
     g_object_unref (app);
+
     while(array){
         temp=array;
         array=array->next;
@@ -445,8 +635,15 @@ main (int argc, char **argv)
         free(temp_net);
 
     }
+    while(memory_array){
+        temp_mem=memory_array;
+        memory_array=memory_array->next;
+        free(temp_mem);
+
+    }
+    memory_array=NULL;
     net_array=NULL;
-    temp_net=NULL;
+
 
     return status;
 }

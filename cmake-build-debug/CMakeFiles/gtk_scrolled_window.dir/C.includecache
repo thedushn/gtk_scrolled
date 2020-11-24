@@ -19,6 +19,8 @@ memory.h
 -
 stdbool.h
 -
+math.h
+-
 drawing.h
 /home/dushn/Desktop/gtk_scrolled_window/drawing.h
 reading.h
