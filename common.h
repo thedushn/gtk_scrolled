@@ -72,9 +72,10 @@ typedef struct _Interrupts_List Interrupts_List;
 struct _Interrupts_List {
 
     int delay_time;
+    __uint64_t max_number;
     Interrupts_elements *pointer;
-    Interrupts_List *next_list;
-    Interrupts_List *prev_list;
+    Interrupts_List *next;
+    Interrupts_List *prev;
 };
 
 int list_num_size;
@@ -83,5 +84,6 @@ int list_num_size_memory;
 int list_size_interrupts;
 int count;
 __uint64_t max_number_net;
+Interrupts_List *interrupts_list;
 
 #endif

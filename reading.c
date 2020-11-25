@@ -333,8 +333,8 @@ int interrupts_read(Interrupts_List **array) {
             last_list = temp_list;
 
         } else {
-            temp_list->prev_list=last_list;
-            last_list->next_list=temp_list;
+            temp_list->prev=last_list;
+            last_list->next=temp_list;
             last_list=temp_list;
 
 
@@ -342,9 +342,10 @@ int interrupts_read(Interrupts_List **array) {
 
 
 
-    temp_list->next_list = NULL;
+    temp_list->next = NULL;
     temp_list->delay_time = delay;
-    while (fgets(buffer, sizeof(buffer), fp) != NULL && strncmp(fp->_IO_read_ptr,"Time:",5)!=0) {
+    temp_list->max_number = 0;
+    while (fgets(buffer, sizeof(buffer), fp) != NULL/* && strncmp(fp->_IO_read_ptr,"Time:",5)!=0*/) {
 
         temp = (Interrupts_elements *) calloc(1, sizeof(Interrupts_elements));
         if (temp == NULL) {
@@ -376,8 +377,24 @@ int interrupts_read(Interrupts_List **array) {
                 last->next=temp;
                 last=temp;
             }
+            if (temp_list->max_number < temp->interrupts.CPU0) {
 
+                temp_list->max_number = temp->interrupts.CPU0;
+            }
+            if (temp_list->max_number <= temp->interrupts.CPU1) {
 
+                temp_list->max_number = temp->interrupts.CPU1;
+            }
+            if (temp_list->max_number <= temp->interrupts.CPU2) {
+
+                temp_list->max_number = temp->interrupts.CPU2;
+            }
+            if (temp_list->max_number <= temp->interrupts.CPU3) {
+
+                temp_list->max_number = temp->interrupts.CPU3;
+            }
+
+         //   printf("max number %"PRIu64"\n",temp_list->max_number);
         } else {
             printf("sscanf error  \n");
             free(temp);
@@ -386,15 +403,19 @@ int interrupts_read(Interrupts_List **array) {
         }
 
 
-        list_size_interrupts++;
+
+        if(strncmp(fp->_IO_read_ptr,"Time:",5)==0){
+            break;
+        }
     }
+        list_size_interrupts++;
 
 }
 
 
 
 
-
+    printf("list size interrupts %d \n",list_size_interrupts);
 
     fclose(fp);
     return ret;

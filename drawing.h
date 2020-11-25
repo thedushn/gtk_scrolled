@@ -23,7 +23,8 @@ GtkWidget *viewport4;
 GtkAdjustment *adj;
 GtkAdjustment *adj2;
 GtkAdjustment *adj3;
-GtkAdjustment *adj4;
+GtkAdjustment *adj_horizontal;
+GtkAdjustment *adj_vertical;
 
 GtkWidget *graph;
 GtkWidget *graph2;
@@ -34,6 +35,7 @@ double value1;
 double value2;
 double value3;
 double value4;
+double value5;
 
 
 
@@ -53,15 +55,18 @@ void draw_frame(cairo_t *cr, double width, double height, double font_size, int 
 void writing_seconds(cairo_t *cr, double width, double height, double font_size, int i);
 gboolean on_draw_event2(GtkWidget *widget, cairo_t *cr);
 void draw_time(cairo_t *cr, double height, double font_size, int x);
-void draw_lines(cairo_t *cr, double height, double font_size, int x);
+void draw_lines(cairo_t *cr, double height, int x, int number_lines, double step, int number_start, int y, bool inter);
 void
 draw_graph_mem(cairo_t *cr, int r, int font_size, Memory_list *array, double height);
 void draw_network_sidebar(cairo_t *cr, double height, double font_size, double position, GtkAdjustment *adj_p,
-                          __uint64_t max_number);
+                          __uint64_t max_number, bool net_int, double position_y);
 int position_draw_cpu(Cpu_list **array1, int old_position, int *new_position, int *counter);
 int position_draw_net(Network **array1, int old_position, int *new_position, int *counter, __uint64_t *max_number);
 void draw_graph_net(cairo_t *cr, int r, double height, double font_size,
                     Network *array, __uint64_t max_number, int counter, int position);
 void draw_network_sidebar(cairo_t *cr, double height, double font_size, double position, GtkAdjustment *adj_p,
-                          __uint64_t max_number);
+                          __uint64_t max_number, bool net_int, double position_y);
+void
+draw_interrupts(cairo_t *cr, double y, double font_size, int x, Interrupts_elements *array, double height,
+                int max_number);
 #endif //GTK_SCROLLED_WINDOW_DRAWING_H

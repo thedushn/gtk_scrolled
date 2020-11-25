@@ -8,6 +8,7 @@
 #include <memory.h>
 #include <stdbool.h>
 #include <math.h>
+#include <inttypes.h>
 #include "drawing.h"
 #include "reading.h"
 
@@ -62,7 +63,7 @@ void do_drawing_cpu2(GtkWidget *widget, cairo_t *cr, guint position, Cpu_list *a
 int position_draw_cpu(Cpu_list **array1, int old_position, int *new_position, int *counter){
    int  x=((old_position)/FONT)*INCREMENT;
 
-    printf("which line %d\n",x);
+   // printf("which line %d\n",x);
     *counter=0;
     int delay=0;
 
@@ -91,13 +92,13 @@ int position_draw_cpu(Cpu_list **array1, int old_position, int *new_position, in
     }
 
     *new_position=(delay*FONT)/INCREMENT;
-    printf("new_position %d counter %d\n",*new_position,*counter);
+  //  printf("new_position %d counter %d\n",*new_position,*counter);
     return 0;
 }
 int position_draw_net(Network **array1, int old_position, int *new_position, int *counter, __uint64_t *max_number) {
     int  x=((old_position/FONT))*INCREMENT;
 
-    printf("which line %d\n",x);
+ //   printf("which line %d\n",x);
 
     int delay=0;
     Network *temp=NULL;
@@ -154,23 +155,27 @@ gboolean on_draw_event_cpu_mem(GtkWidget *widget, cairo_t *cr, void *array1) {
     int position=0;
     __uint64_t max_number=0;
 
+    Interrupts_List *p=NULL;
+    Interrupts_List *temp_list_int=NULL;
+    Interrupts_elements *temp_intrp=NULL;
 
     if(widget==graph){
         height = gtk_widget_get_allocated_height(scrolled_window);
         width = gtk_widget_get_allocated_width(scrolled_window);
-        printf("windwo  %f %f \n",height,width);
+       // printf("windwo  %f %f \n",height,width);
         value=value1;
         adj_p=adj;
         Cpu_list *temp=array1;
-         position_draw_cpu(&temp,(int)gtk_adjustment_get_value(adj_p),&position,&counter);
-        do_drawing_cpu2(widget, cr,(guint) position, temp, height - 20, counter);
-        draw_time(cr, height-10, font_size, (guint)gtk_adjustment_get_value(adj_p));
-        draw_percentages(cr, height-20, 10, value, adj_p);
-        draw_lines(cr, height-20, font_size, (int)gtk_adjustment_get_value(adj_p));
+        position_draw_cpu(&temp,(int)gtk_adjustment_get_value(adj_p),&position,&counter);
+        do_drawing_cpu2(widget, cr,(guint) position, temp, height - 2*font_size, counter);
+        draw_time(cr, height-font_size, font_size, (guint)gtk_adjustment_get_value(adj_p));
+        draw_percentages(cr, height-2*font_size, font_size, value, adj_p);
+        draw_lines(cr, height - 2 * font_size, (int) gtk_adjustment_get_value(adj_p), count / INCREMENT, FONT,
+                   (int) gtk_adjustment_get_value(adj_p) / FONT, 0, NULL);
     }
     else if(widget==graph2 ){
         height = gtk_widget_get_allocated_height(scrolled_window2);
-        width = gtk_widget_get_allocated_width(scrolled_window2);
+
         value=value2;
       //  printf("windwo 2 %f %f \n",height,width);
         adj_p=adj2;
@@ -185,13 +190,14 @@ gboolean on_draw_event_cpu_mem(GtkWidget *widget, cairo_t *cr, void *array1) {
 
         cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
         cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
-        draw_time(cr, height-2*font_size, font_size, (guint)gtk_adjustment_get_value(adj_p));
+        draw_time(cr, height-font_size, font_size, (guint)gtk_adjustment_get_value(adj_p));
 
-        height-=3*font_size;
+        height-=2*font_size;
         draw_graph_mem(cr, 0, font_size, array1, height);
         draw_graph_mem(cr, 1, font_size, array1, height);
         draw_percentages(cr, height, 10, value, adj_p);
-        draw_lines(cr, height, 10, (int)gtk_adjustment_get_value(adj_p));
+        draw_lines(cr, height, (int) gtk_adjustment_get_value(adj_p), count / INCREMENT, FONT,
+                   (int) gtk_adjustment_get_value(adj_p) / FONT, 0, NULL);
 
 
 
@@ -213,43 +219,81 @@ gboolean on_draw_event_cpu_mem(GtkWidget *widget, cairo_t *cr, void *array1) {
         Network *temp_net=array1;
         adj_p=adj3;
 
-        draw_time(cr, height-2*font_size, font_size, (guint)gtk_adjustment_get_value(adj_p));
+        draw_time(cr, height-1*font_size, font_size, (guint)gtk_adjustment_get_value(adj_p));
 
-        height-=3*font_size;
+        height-=2*font_size;
         position_draw_net(&temp_net,(int)gtk_adjustment_get_value(adj_p), &position, &counter,&max_number);
 
         draw_graph_net(cr, 0, height,font_size,temp_net,max_number,counter,position);
         draw_graph_net(cr, 1, height,font_size,temp_net,max_number,counter,position);
-        draw_lines(cr, height, 10, (int)gtk_adjustment_get_value(adj_p));
-        draw_network_sidebar(cr,height,font_size,value,adj_p,max_number);
+        draw_lines(cr, height, (int) gtk_adjustment_get_value(adj_p), count / INCREMENT, FONT,
+                   (int) gtk_adjustment_get_value(adj_p) / FONT, 0, false);
+        draw_network_sidebar(cr, height, font_size, value, adj_p, max_number, true, 0);
 
 
 
     }else{
-
+        p=interrupts_list;
+        adj_p=adj_horizontal;
         height = gtk_widget_get_allocated_height(scrolled_window4);
         width = gtk_widget_get_allocated_width(scrolled_window4);
         value=value4;
-        //  printf("windwo 2 %f %f \n",height,width);
-        adj_p=adj4;
+          printf("Interrupts 2 %f %f \n",height,gtk_adjustment_get_value(adj_p));
 
-        gtk_widget_set_size_request(widget,(gint)((count/250)*(6*font_size)+18*font_size) ,(gint)((count/250)*(6*font_size)+18*font_size));
-        //height-=2*font_size;
 
-//        cairo_set_line_width(cr, 1);
-//
-//
-//        cairo_set_font_size(cr, font_size);
-//
-//        cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-//        cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
+        gtk_widget_set_size_request(widget,(gint)(10*6*font_size+6*font_size) ,(gint)(height*list_size_interrupts));
+
+
+        cairo_set_line_width(cr, 1);
+
+        cairo_set_font_size(cr, font_size);
+
+        cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+        cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
 //        draw_time(cr, height-2*font_size, font_size, (guint)gtk_adjustment_get_value(adj_p));
 //
-//        height-=3*font_size;
+        height-=2*font_size;
 //        draw_graph_mem(cr, 0, font_size, array1, height);
 //        draw_graph_mem(cr, 1, font_size, array1, height);
 //        draw_percentages(cr, height, 10, value, adj_p);
-//        draw_lines(cr, height, 10, (int)gtk_adjustment_get_value(adj_p));
+      //  printf("max number %"PRIu64"\n",p->max_number);
+        draw_lines(cr, height, (int) gtk_adjustment_get_value(adj_p), (int) gtk_adjustment_get_upper(adj_p) / FONT,
+                   FONT, (int) (gtk_adjustment_get_value(adj_p) / FONT), (int) gtk_adjustment_get_value(adj_vertical),
+                   true);
+
+            for(int i=1;i<(int)(value5/height)-1;i++){
+                p=p->next;
+                printf("%d\n",i);
+
+            }
+
+
+//
+//      int j=0;
+//        while(p->next){
+//            if(j<(int)value5/height){
+//                p=p->next;
+//            }else{
+//                break;
+//            }
+//
+//            j++;
+//        }
+//        for(int i=0;i<(int)value5/height;i++){
+//            p=p->next;
+//        }
+        draw_network_sidebar(cr, height, font_size, value, adj_vertical, p->max_number, false, value5);
+        temp_intrp=p->pointer;
+        for(int i=0;i<(int)value/FONT;i++){
+
+            temp_intrp=temp_intrp->next;
+
+        }
+
+
+
+        printf("value %f\n",value5);
+        draw_interrupts(cr, value5 + height + font_size, font_size, (int) value, temp_intrp, height, p->max_number);
 
     }
 
@@ -261,56 +305,137 @@ gboolean on_draw_event_cpu_mem(GtkWidget *widget, cairo_t *cr, void *array1) {
 }
 
 void draw_network_sidebar(cairo_t *cr, double height, double font_size, double position, GtkAdjustment *adj_p,
-                          __uint64_t max_number) {
-
-    double prev = height ; //zero
+                          __uint64_t max_number, bool net_int, double position_y) {
 
 
+
+    char buffer[10]={0};
     double temp2=gtk_adjustment_get_upper(adj_p);
-    printf("Position %f  %f\n",position,temp2);
+
     cairo_set_font_size(cr, font_size);
 
     cairo_set_source_rgb(cr, 0, 1, 1);
+    if(net_int==true){
+        cairo_rectangle(cr,position,height,6*font_size-2,-height);
+    }  else{
+        cairo_rectangle(cr,position,position_y,6*font_size-2,height);
+    }
 
-    cairo_rectangle(cr,position,height,6*font_size-2,-height);
+
 
 
     cairo_fill(cr);
     cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_move_to(cr, position,font_size);
-    cairo_show_text(cr, g_format_size_full(max_number,G_FORMAT_SIZE_IEC_UNITS));
+
+    if(net_int==true){
+        cairo_move_to(cr, position,font_size);
+        cairo_show_text(cr, g_format_size_full(max_number,G_FORMAT_SIZE_IEC_UNITS));
+    }  else{
+        cairo_move_to(cr, position,position_y+font_size);
+        sprintf(buffer,"%" SCNu64 "",max_number);
+        cairo_show_text(cr,buffer ) ;
+    }
+
     cairo_set_source_rgba(cr, 0, 0, 0,0.4);
-    cairo_move_to(cr, position+6*font_size, 0);
-    cairo_line_to(cr,temp2-12*font_size,0);
+
+    if(net_int==true){
+        cairo_move_to(cr, position, 0);
+        cairo_line_to(cr,temp2-12*font_size,0);
+    }  else{
+        cairo_move_to(cr, position+6*font_size, position_y);
+        cairo_line_to(cr,temp2-6*font_size,position_y);
+    }
+
+
+
+    cairo_set_source_rgb(cr, 0, 0, 0);
+
+    if(net_int==true){
+        cairo_move_to(cr,  position, height / 4);
+        cairo_show_text(cr,  g_format_size_full(max_number*3/4,G_FORMAT_SIZE_IEC_UNITS));
+    }  else{
+        cairo_move_to(cr,  position,position_y+ height/4);
+        sprintf(buffer,"%" SCNu64 "",max_number*3/4);
+        cairo_show_text(cr,buffer ) ;
+
+    }
+
+    cairo_set_source_rgba(cr, 0, 0, 0,0.4);
+
+    if(net_int==true){
+        cairo_move_to(cr,  position+6*font_size, height / 4);
+        cairo_line_to(cr,temp2-12*font_size,height / 4);
+    }  else{
+        cairo_move_to(cr,  position+6*font_size,position_y+ height/4);
+        cairo_line_to(cr,temp2-6*font_size,position_y+ height/4);
+    }
 
 
     cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_move_to(cr,  position, prev / 4);
-    cairo_show_text(cr,  g_format_size_full(max_number*3/4,G_FORMAT_SIZE_IEC_UNITS));
+
+    if(net_int==true){
+        cairo_move_to(cr,  position, height / 2);
+        cairo_show_text(cr,  g_format_size_full(max_number/2,G_FORMAT_SIZE_IEC_UNITS));
+    }  else{
+        cairo_move_to(cr,  position,position_y+ height/2);
+        sprintf(buffer,"%" SCNu64 "",max_number/2);
+        cairo_show_text(cr,buffer ) ;
+    }
+
     cairo_set_source_rgba(cr, 0, 0, 0,0.4);
-    cairo_move_to(cr,  position+6*font_size, prev / 4);
-    cairo_line_to(cr,temp2-12*font_size,prev / 4);
+
+    if(net_int==true){
+        cairo_move_to(cr,  position+6*font_size, (height /  2));
+        cairo_line_to(cr,temp2-12*font_size,height / 2);
+    }  else{
+        cairo_move_to(cr,  position+6*font_size,position_y+ height/2);
+        cairo_line_to(cr,temp2-6*font_size,position_y+height / 2);
+    }
+
 
     cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_move_to(cr,  position, prev / 4 * 2);
-    cairo_show_text(cr,  g_format_size_full(max_number/2,G_FORMAT_SIZE_IEC_UNITS));
+
+    if(net_int==true){
+        cairo_move_to(cr,  position, height / 4 * 3);
+        cairo_show_text(cr,  g_format_size_full(max_number/4,G_FORMAT_SIZE_IEC_UNITS));
+    }  else{
+        cairo_move_to(cr,  position,position_y+ height/4 * 3);
+        sprintf(buffer,"%" SCNu64 "",max_number/4);
+        cairo_show_text(cr,buffer ) ;
+    }
+
     cairo_set_source_rgba(cr, 0, 0, 0,0.4);
-    cairo_move_to(cr,  position+6*font_size, (prev / 4 * 2));
-    cairo_line_to(cr,temp2-12*font_size,(prev / 4 * 2));
+
+
+    if(net_int==true){
+        cairo_move_to(cr,  position+6*font_size, height / 4 * 3);
+        cairo_line_to(cr,temp2-12*font_size,height / 4*3);
+    }  else{
+        cairo_move_to(cr,  position+6*font_size,position_y+ height/4 * 3);
+        cairo_line_to(cr,temp2-6*font_size,position_y+ height/4 * 3);
+    }
+
 
     cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_move_to(cr,  position, prev / 4 * 3);
-    cairo_show_text(cr,  g_format_size_full(max_number/4,G_FORMAT_SIZE_IEC_UNITS));
-    cairo_set_source_rgba(cr, 0, 0, 0,0.4);
-    cairo_move_to(cr,  position+6*font_size, prev / 4 * 3);
-    cairo_line_to(cr,temp2-12*font_size,prev / 4 * 3);
 
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_move_to(cr,  position, prev);
-    cairo_show_text(cr,  g_format_size_full(0,G_FORMAT_SIZE_IEC_UNITS));
+    if(net_int==true){
+        cairo_move_to(cr,  position, height);
+        cairo_show_text(cr,  g_format_size_full(0,G_FORMAT_SIZE_IEC_UNITS));
+    }  else{
+        cairo_move_to(cr,  position,position_y+ height);
+        cairo_show_text(cr, "0") ;
+    }
+
     cairo_set_source_rgba(cr, 0, 0, 0,0.4);
-    cairo_move_to(cr,  position+6*font_size, prev);
-    cairo_line_to(cr, temp2-12*font_size,prev);
+
+    if(net_int==true){
+        cairo_move_to(cr,  position+6*font_size, height);
+        cairo_line_to(cr,temp2-12*font_size,height );
+    }  else{
+        cairo_move_to(cr,  position+6*font_size, position_y+height);
+        cairo_line_to(cr,temp2-6*font_size,position_y+height );
+    }
+
 
     cairo_stroke(cr);
 
@@ -324,7 +449,7 @@ void draw_percentages(cairo_t *cr, double height, double font_size, double posit
 
 
     double temp2=gtk_adjustment_get_upper(adj_p);
-    printf("Position %f  %f\n",position,temp2);
+  //  printf("Position %f  %f\n",position,temp2);
     cairo_set_font_size(cr, font_size);
 
     cairo_set_source_rgb(cr, 0, 1, 1);
@@ -375,11 +500,11 @@ void draw_percentages(cairo_t *cr, double height, double font_size, double posit
 }
 
 
-void draw_lines(cairo_t *cr, double height, double font_size, int x) {
+void draw_lines(cairo_t *cr, double height, int x, int number_lines, double step, int number_start, int y, bool inter) {
 
 
-    double prev = height ; //zero
-    double step = 0;
+
+   // double step = 0;
 
     int step_count=0;
 
@@ -388,32 +513,43 @@ void draw_lines(cairo_t *cr, double height, double font_size, int x) {
 
 
 
-    step=6 * font_size;
+    //step=6 * font_size;
 
 
 
-    for (int j = x/FONT; j <=count/INCREMENT; j++) {
+    for (int j = number_start; j <=number_lines; j++) {
 
 
 
-
-
-        cairo_move_to(cr,x + step, prev);//set right after the percentage
+    if(inter==false){
+        cairo_move_to(cr,x + step, height);//set right after the percentage
 
         cairo_line_to(cr,x +step,-height );//straight line to the top
+        cairo_translate(cr,step,0);
+    }else{
+        cairo_move_to(cr,x + step, y);//set right after the percentage
+
+        cairo_line_to(cr,x +step,y+height );//straight line to the top
+        cairo_translate(cr,step,0);
+    }
+
+
 
 
 
         step_count+=step;
-        cairo_translate(cr,step,0);
+
 
 
 
     }
 
     cairo_stroke(cr);
-    cairo_translate(cr,-step_count,0);
-
+    if(inter==false) {
+        cairo_translate(cr, -step_count, 0);
+    }else{
+        cairo_translate(cr, -step_count, 0);
+    }
 }
 void draw_time(cairo_t *cr, double height, double font_size, int x) {
 
@@ -476,6 +612,7 @@ draw_graph(cairo_t *cr, int r, double height, double font_size, int position, Cp
     double prev  ;
     double step = 0;
     double step_counter=0;
+
     double delay=0;
 
 
@@ -503,7 +640,7 @@ draw_graph(cairo_t *cr, int r, double height, double font_size, int position, Cp
         percentage = ((height ) / 100) * temp->prev->data[r];
         prev = height - percentage;
     }
-    printf("prev %f percentage %f data %f \n",prev,percentage,temp->data[r]);
+    //printf("prev %f percentage %f data %f \n",prev,percentage,temp->data[r]);
     for (int j = counter; j < list_num_size; j++) {
 
 
@@ -718,4 +855,102 @@ draw_graph_mem(cairo_t *cr, int r, int font_size, Memory_list *array, double hei
 
 
 
+}
+void
+draw_interrupts(cairo_t *cr, double y, double font_size, int x, Interrupts_elements *array, double height,
+                int max_number) {
+
+
+    double step = 6 * font_size;
+    double step_count = 0;
+
+
+
+
+   // cairo_set_source_rgb(cr, 0, 0, 0);
+   while(array){
+
+
+       cairo_set_source_rgb(cr, 1, 0, 0);
+       cairo_rectangle(cr,x + step,y-font_size,6*font_size/4,-((height) / max_number) * array->interrupts.CPU0);
+       cairo_fill(cr);
+       cairo_set_source_rgb(cr, 0, 1, 0);
+       cairo_rectangle(cr,x + step+6*font_size/4,y-font_size,6*font_size/4,-((height) / max_number) * array->interrupts.CPU1);
+       cairo_fill(cr);
+       cairo_set_source_rgb(cr, 0, 0, 1);
+       cairo_rectangle(cr,x + step+6*font_size/2,y-font_size,6*font_size/4,-((height) / max_number) * array->interrupts.CPU2);
+       cairo_fill(cr);
+       cairo_set_source_rgb(cr, 1, 0.5, 0);
+       cairo_rectangle(cr,x + step+6*font_size/4*3,y-font_size,6*font_size/4,-((height) / max_number) * array->interrupts.CPU3);
+       cairo_fill(cr);
+
+    cairo_move_to(cr, x + step, y);
+
+
+
+       cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_show_text(cr, array->interrupts.irq);
+    cairo_translate(cr, step, 0);
+    step_count += step;
+
+
+    array = array->next;
+}
+
+    cairo_stroke(cr);
+    cairo_translate(cr,-step_count,0);
+
+
+
+
+}
+int position_draw_interrupts(Interrupts_List **array, int x,int y, int *new_x,int new_y, int *counter,
+                              double height) {
+
+
+
+
+    int delay=0;
+    Interrupts_List *temp=NULL;
+
+    while((*array)){
+        delay+=(*array)->delay_time;
+
+        if(delay== y){
+
+            (*array)= (*array)->next;
+            (*counter)++;
+            break;
+        }
+        if(delay> y){
+            delay-=(*array)->delay_time;
+            break;
+
+
+
+        }
+        (*counter)++;
+
+        (*array)= (*array)->next;
+
+
+    }
+    temp=(*array);
+
+//    while(temp){
+//
+//        if(temp->received_bytes>temp->transmited_bytes){
+//            if(temp->received_bytes>*max_number){
+//                *max_number=temp->received_bytes;
+//            }
+//        }else{
+//            if(temp->transmited_bytes>*max_number){
+//                *max_number=temp->transmited_bytes;
+//            }
+//        }
+//        temp=temp->next;
+//    }
+
+   // *new_position=(delay*FONT)/INCREMENT;
+    return 0;
 }
