@@ -19,6 +19,10 @@ memory.h
 -
 stdbool.h
 -
+math.h
+-
+inttypes.h
+-
 drawing.h
 /home/dushn/Desktop/gtk_scrolled_window/drawing.h
 reading.h
@@ -48,6 +52,8 @@ reading.h
 glib.h
 -
 glib/gprintf.h
+-
+inttypes.h
 -
 
 /home/dushn/Desktop/gtk_scrolled_window/reading.c
