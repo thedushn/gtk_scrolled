@@ -177,6 +177,33 @@ main.c.s:
 	$(MAKE) -f CMakeFiles/gtk_scrolled_window.dir/build.make CMakeFiles/gtk_scrolled_window.dir/main.c.s
 .PHONY : main.c.s
 
+mouse_tracking.o: mouse_tracking.c.o
+
+.PHONY : mouse_tracking.o
+
+# target to build an object file
+mouse_tracking.c.o:
+	$(MAKE) -f CMakeFiles/gtk_scrolled_window.dir/build.make CMakeFiles/gtk_scrolled_window.dir/mouse_tracking.c.o
+.PHONY : mouse_tracking.c.o
+
+mouse_tracking.i: mouse_tracking.c.i
+
+.PHONY : mouse_tracking.i
+
+# target to preprocess a source file
+mouse_tracking.c.i:
+	$(MAKE) -f CMakeFiles/gtk_scrolled_window.dir/build.make CMakeFiles/gtk_scrolled_window.dir/mouse_tracking.c.i
+.PHONY : mouse_tracking.c.i
+
+mouse_tracking.s: mouse_tracking.c.s
+
+.PHONY : mouse_tracking.s
+
+# target to generate assembly for a file
+mouse_tracking.c.s:
+	$(MAKE) -f CMakeFiles/gtk_scrolled_window.dir/build.make CMakeFiles/gtk_scrolled_window.dir/mouse_tracking.c.s
+.PHONY : mouse_tracking.c.s
+
 reading.o: reading.c.o
 
 .PHONY : reading.o
@@ -219,6 +246,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... mouse_tracking.o"
+	@echo "... mouse_tracking.i"
+	@echo "... mouse_tracking.s"
 	@echo "... reading.o"
 	@echo "... reading.i"
 	@echo "... reading.s"
