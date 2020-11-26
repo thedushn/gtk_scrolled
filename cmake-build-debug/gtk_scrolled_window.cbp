@@ -134,6 +134,12 @@
 		<Unit filename="/home/dushn/Desktop/gtk_scrolled_window/main.c">
 			<Option target="gtk_scrolled_window"/>
 		</Unit>
+		<Unit filename="/home/dushn/Desktop/gtk_scrolled_window/mouse_tracking.c">
+			<Option target="gtk_scrolled_window"/>
+		</Unit>
+		<Unit filename="/home/dushn/Desktop/gtk_scrolled_window/mouse_tracking.h">
+			<Option target="gtk_scrolled_window"/>
+		</Unit>
 		<Unit filename="/home/dushn/Desktop/gtk_scrolled_window/reading.c">
 			<Option target="gtk_scrolled_window"/>
 		</Unit>

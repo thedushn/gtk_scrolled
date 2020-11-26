@@ -61,20 +61,14 @@ int cpu_read(Cpu_list **array) {
                 last=temp;
             }
             else{
-//                Cpu_list *temp_p=(*array);
-//                while(temp_p->next!=NULL){
-//                    temp_p=temp_p->next;
-//                }
-//                temp->prev= temp_p;
-//                temp_p->next=temp;
+
                 temp->prev= last;
                 last->next=temp;
                 last=temp;
 
 
             }
-//            temp->next = (*array);
-//            (*array) = temp;
+
             list_num_size++;
         }
         else{
@@ -95,7 +89,7 @@ int cpu_read(Cpu_list **array) {
 
 
     fclose(fp);
-    return ret;
+    return ret<0 ? -1 : 0;
 
 }
 int netw_read(Network **array, __uint64_t *max_number) {
@@ -148,11 +142,7 @@ int netw_read(Network **array, __uint64_t *max_number) {
                 last=temp;
             }
             else{
-//                Network *temp_p=(*array);//append
-//                while(temp_p->next!=NULL){
-//                    temp_p=temp_p->next;
-//                }
-//                temp_p->next=temp;
+
                 temp->prev= last;
                 last->next=temp;
                 last=temp;
@@ -168,8 +158,7 @@ int netw_read(Network **array, __uint64_t *max_number) {
                 if(*max_number>temp->received_bytes ? 0 : ((*max_number)=temp->received_bytes) );
             }
 
-//            temp->next = (*array);//prepend
-//            (*array) = temp;
+
             list_num_size_net++;
         }
         else{
@@ -178,7 +167,7 @@ int netw_read(Network **array, __uint64_t *max_number) {
             ret=-1;
             break;
         }
-      //  count+=delay;
+
 
 
 
@@ -190,7 +179,7 @@ int netw_read(Network **array, __uint64_t *max_number) {
 
 
     fclose(fp);
-    return ret;
+    return ret<0 ? -1 : 0;
 
 
 }
@@ -250,11 +239,7 @@ int memory_read(Memory_list **array){
                 last=temp;
             }
             else{
-//                Memory_list *temp_p=(*array);//append
-//                while(temp_p->next!=NULL){
-//                    temp_p=temp_p->next;
-//                }
-//                temp_p->next=temp;
+
                 temp->prev= last;
                 last->next=temp;
                 last=temp;
@@ -264,8 +249,7 @@ int memory_read(Memory_list **array){
             }
 
 
-//            temp->next = (*array);//prepend
-//            (*array) = temp;
+
             list_num_size_memory++;
         }
         else{
@@ -274,7 +258,7 @@ int memory_read(Memory_list **array){
             ret=-1;
             break;
         }
-        //  count+=delay;
+
 
 
 
@@ -285,97 +269,190 @@ int memory_read(Memory_list **array){
 
 
     fclose(fp);
-    return ret;
+    return ret<0 ? -1 : 0;
 
 }
-int interrupts_read(Interrupts_List **array) {
+int interrupt_list_read(Interrupts_List **array,FILE *fp,char buffer_r[512]){
 
-
-    FILE *fp;
-    char *filename = "interrupts.data";
-    char *p;
-
-    int ret = 0;
-    int delay = 0;
-    char buffer[1024] = {0};
-
+    char buffer[512] = {0};
+    static int c=0;
+    list_size_interrupts++;
+    printf("%d\n",c);
     Interrupts_List *temp_list = NULL;
-    Interrupts_List *last_list = NULL;
+
+
 
     Interrupts_elements *temp = NULL;
-    Interrupts_elements *last = NULL;
+
+    char *p;
+
+    int delay = 0;
+    temp_list = (Interrupts_List *) calloc(1, sizeof(Interrupts_List));
+    if (temp_list == NULL) {
+        printf("calloc error %d \n", errno);
+        free(temp_list);
+        return -1;
+
+    }
+    if ((*array) == NULL) {
+        (*array) = temp_list;
 
 
 
-    if ((fp = fopen(filename, "r")) == NULL) //open file for reading
-        return 1;
-
-
-    while (fgets(buffer, sizeof(buffer), fp) != NULL ) {
-        delay = 0;
-        if (strncmp(buffer, "Time:", 5) == 0) {
-            p = strrchr(buffer, 'D');
-            ret = sscanf(p, "Delay %d", &delay);
+    } else {
+        Interrupts_List *temp_p=(*array);
+                while(temp_p->next!=NULL){
+                    temp_p=temp_p->next;
+                }
+        temp_list->prev= temp_p;
+        temp_p->next=temp_list;
 
 
 
-        }
-        temp_list = (Interrupts_List *) calloc(1, sizeof(Interrupts_List));
-        if (temp_list == NULL) {
-            printf("calloc error %d \n", errno);
+    }
+    if (strncmp(buffer_r, "Time:", 5) == 0) {
+        p = strrchr(buffer_r, 'D');
+        if(sscanf(p, "Delay %d", &delay)<1){
             free(temp_list);
-            ret = -1;
-            break;
-        }
-        if ((*array) == NULL) {
-            (*array) = temp_list;
-
-            last_list = temp_list;
-
-        } else {
-            temp_list->prev=last_list;
-            last_list->next=temp_list;
-            last_list=temp_list;
-
-
+            return -1;
         }
 
 
-
+    }
+    else{
+        free(temp_list);
+        return -1;
+    }
     temp_list->next = NULL;
     temp_list->delay_time = delay;
     temp_list->max_number = 0;
-    while (fgets(buffer, sizeof(buffer), fp) != NULL/* && strncmp(fp->_IO_read_ptr,"Time:",5)!=0*/) {
 
+    while (fgets(buffer, sizeof(buffer), fp) != NULL ) {
+        if (strncmp(buffer, "Time:", 5) != 0) {
+
+            return interrupt_element_read(&temp_list,fp,buffer);
+        }
+        else{
+            while(temp_list->pointer){
+                temp=temp_list->pointer;
+                temp_list->pointer=temp_list->pointer->next;
+                free(temp);
+            }
+            free(temp_list);
+            temp_list=NULL;
+            return -1;
+        }
+
+
+    }
+
+
+
+
+
+    return 0;
+}
+int interrupt_element_read(Interrupts_List **array,FILE *fp,char buffer_r[512]){
+
+    char buffer[512];
+    int ret;
+    Interrupts_List *temp_list = *array;
+
+
+    Interrupts_elements *temp = NULL;
+    Interrupts_elements *last = NULL;
+    temp = (Interrupts_elements *) calloc(1, sizeof(Interrupts_elements));
+    if (temp == NULL) {
+        printf("calloc error %d \n", errno);
+
+        free(temp);
+       return -1;
+    }
+    if ((ret = sscanf(buffer_r, "%3s %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %s %s %s %s",
+                      temp->interrupts.irq,
+                      &temp->interrupts.CPU0,
+                      &temp->interrupts.CPU1,
+                      &temp->interrupts.CPU2,
+                      &temp->interrupts.CPU3,
+                      temp->interrupts.ime1,
+                      temp->interrupts.ime2,
+                      temp->interrupts.ime3,
+                      temp->interrupts.ime4
+    ) > 2)) {
+        if (temp_list->pointer == NULL) {
+            temp_list->pointer = temp;
+            temp_list->pointer->next = NULL;
+            temp_list->pointer->prev = NULL;
+            last = temp;
+
+        } else {
+            temp->prev = last;
+            last->next = temp;
+            last = temp;
+        }
+        if (temp_list->max_number < temp->interrupts.CPU0) {
+
+            temp_list->max_number = temp->interrupts.CPU0;
+        }
+        if (temp_list->max_number <= temp->interrupts.CPU1) {
+
+            temp_list->max_number = temp->interrupts.CPU1;
+        }
+        if (temp_list->max_number <= temp->interrupts.CPU2) {
+
+            temp_list->max_number = temp->interrupts.CPU2;
+        }
+        if (temp_list->max_number <= temp->interrupts.CPU3) {
+
+            temp_list->max_number = temp->interrupts.CPU3;
+        }
+
+
+    } else {
+        printf("sscanf error  \n");
+        printf("buffer %s\n", buffer_r);
+        free(temp);
+        return -1;
+    }
+
+
+    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+
+        if (strncmp(buffer, "Time:", 5) == 0){
+            if(interrupt_list_read(array,fp,buffer)!=0){
+                return -1;
+            }
+            return 0;
+
+        }
         temp = (Interrupts_elements *) calloc(1, sizeof(Interrupts_elements));
         if (temp == NULL) {
             printf("calloc error %d \n", errno);
 
             free(temp);
-            ret = -1;
-            break;
+          return -1;
         }
-        if (sscanf(buffer, " \n %3s %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %s %s %s %s \n",
-                   temp->interrupts.irq,
-                   &temp->interrupts.CPU0,
-                   &temp->interrupts.CPU1,
-                   &temp->interrupts.CPU2,
-                   &temp->interrupts.CPU3,
-                   temp->interrupts.ime1,
-                   temp->interrupts.ime2,
-                   temp->interrupts.ime3,
-                   temp->interrupts.ime4
-        ) >= 5) {
-            if(temp_list->pointer==NULL){
-                temp_list->pointer=temp;
-                temp_list->pointer->next=NULL;
-                temp_list->pointer->prev=NULL;
-                last=temp;
+        if ((ret = sscanf(buffer, "%3s %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %s %s %s %s",
+                          temp->interrupts.irq,
+                          &temp->interrupts.CPU0,
+                          &temp->interrupts.CPU1,
+                          &temp->interrupts.CPU2,
+                          &temp->interrupts.CPU3,
+                          temp->interrupts.ime1,
+                          temp->interrupts.ime2,
+                          temp->interrupts.ime3,
+                          temp->interrupts.ime4
+        ) > 2)) {
+            if (temp_list->pointer == NULL) {
+                temp_list->pointer = temp;
+                temp_list->pointer->next = NULL;
+                temp_list->pointer->prev = NULL;
+                last = temp;
 
-            }else{
-                temp->prev= last;
-                last->next=temp;
-                last=temp;
+            } else {
+                temp->prev = last;
+                last->next = temp;
+                last = temp;
             }
             if (temp_list->max_number < temp->interrupts.CPU0) {
 
@@ -394,21 +471,64 @@ int interrupts_read(Interrupts_List **array) {
                 temp_list->max_number = temp->interrupts.CPU3;
             }
 
-         //   printf("max number %"PRIu64"\n",temp_list->max_number);
+
         } else {
             printf("sscanf error  \n");
+            printf("buffer %s\n", buffer);
             free(temp);
-            ret = -1;
-            break;
+            if (strncmp(buffer, "Time:", 5) != 0) {
+                printf("buffer %s\n", buffer);
+
+                return -1;
+            }
+
+            return -1;
         }
 
 
-
-        if(strncmp(fp->_IO_read_ptr,"Time:",5)==0){
-            break;
-        }
     }
-        list_size_interrupts++;
+    return 0;
+}
+int interrupts_read(Interrupts_List **array) {
+
+
+    FILE *fp;
+    char *filename = "interrupts.data";
+
+
+    int ret = 0;
+
+    char buffer[512] = {0};
+
+
+
+
+
+    if ((fp = fopen(filename, "r")) == NULL) //open file for reading
+        return -1;
+
+
+    while (fgets(buffer, sizeof(buffer), fp) != NULL ) {
+
+        if (strncmp(buffer, "Time:", 5) == 0) {
+
+           if(interrupt_list_read(array,fp,buffer)!=0){
+               printf("kabum\n");
+               return -1;
+           }
+            else{
+               return 0;
+       }
+
+
+
+
+        }
+        else{
+            printf("buffer %s\n",buffer);
+
+            return 0;
+            }
 
 }
 
@@ -418,5 +538,5 @@ int interrupts_read(Interrupts_List **array) {
     printf("list size interrupts %d \n",list_size_interrupts);
 
     fclose(fp);
-    return ret;
+    return ret<0 ? -1 : 0;
 }

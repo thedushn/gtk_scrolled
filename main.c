@@ -7,286 +7,15 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <inttypes.h>
+#include "mouse_tracking.h"
 
 
-Cpu_list *array=NULL;
+
+
+
+Cpu_list *cpu_array=NULL;
 Network *net_array=NULL;
 Memory_list *memory_array=NULL;
-
-static gboolean
-motion_notify_event_net( GtkWidget *widget, GdkEventMotion *event )
-{
-    double x;
-    double delay=0;
-    int a=0;
-    Network *temp=net_array;
-
-    gchar tesxas[100];
-
-
-
-
-
-    if(event->type==GDK_MOTION_NOTIFY){
-
-        x=event->x;
-
-        if(x<FONT-2){
-            return TRUE;
-        }
-        if(fmod(x,FONT)<=2 && fmod(x,FONT)>=0 ){
-
-            if(x<=FONT+2){
-
-                g_sprintf (tesxas,"Transmitted %s \n"
-                                   "Received %s ",
-                           g_format_size_full(0,G_FORMAT_SIZE_IEC_UNITS),
-                           g_format_size_full(0,G_FORMAT_SIZE_IEC_UNITS)
-
-                );
-                gtk_widget_set_tooltip_markup (window,
-                                               tesxas);
-
-                return TRUE;
-            }
-
-            a=(int)((x/FONT)-1)*INCREMENT;
-
-
-            while(temp->next!=NULL){
-                delay+=temp->delay_time;
-                if(delay==a){
-                    break;
-                }
-                if(delay>a){
-                    return TRUE;
-                }
-                temp=temp->next;
-            }
-
-            g_sprintf (tesxas,"Transmitted %s \n"
-                               "Received %s ",
-                       g_format_size_full(temp->transmited_bytes,G_FORMAT_SIZE_IEC_UNITS),
-                       g_format_size_full(temp->received_bytes,G_FORMAT_SIZE_IEC_UNITS)
-
-            );
-
-            gtk_widget_set_tooltip_markup (window,
-                                           tesxas);
-
-
-
-        }
-
-    }
-
-
-
-
-
-    return TRUE;
-}
-static gboolean motion_notify_event_interrupts(GtkWidget *widget, GdkEventMotion *event){
-
-    int x,y;
-    double delay=0;
-    int a=0;
-    Interrupts_List *temp=interrupts_list;
-    Interrupts_elements *temp_elements=NULL;
-
-    gchar tesxas[100];
-    if(event->type==GDK_MOTION_NOTIFY){
-
-
-
-        if(event->x<FONT){
-            return TRUE;
-        }
-        x=(int)event->x/FONT;
-        y=(int)event->y/gtk_widget_get_allocated_height(scrolled_window4);
-        if(x>10){
-            return TRUE;
-        }
-
-        for(int i=0;i<y;i++){
-            temp=temp->next;
-
-        }
-        temp_elements=temp->pointer;
-        for(int i=1;i<x;i++){
-            temp_elements=temp_elements->next;
-
-        }
-
-        printf("x %d  y %d \n",x,y);
-
-        g_sprintf (tesxas,"CPU0 %"PRIu64" \nCPU1 %"PRIu64"  \nCPU2 %"PRIu64"  \nCPU3 %"PRIu64" \n %s "
-                           ,
-                   temp_elements->interrupts.CPU0,
-                   temp_elements->interrupts.CPU1,
-                   temp_elements->interrupts.CPU2,
-                   temp_elements->interrupts.CPU3,
-                   temp_elements->interrupts.irq
-                   );
-
-
-
-           gtk_widget_set_tooltip_markup (window,
-                                           tesxas);
-
-
-
-        }
-
-
-
-
-    return TRUE;
-}
-
-static gboolean
-motion_notify_event_memory( GtkWidget *widget, GdkEventMotion *event )
-{
-    double x;
-    double delay=0;
-    int a=0;
-    Memory_list *temp=memory_array;
-
-    gchar tesxas[100];
-
-
-
-
-
-    if(event->type==GDK_MOTION_NOTIFY){
-
-        x=event->x;
-
-        if(x<FONT-2){
-            return TRUE;
-        }
-        if(fmod(x,FONT)<=2 && fmod(x,FONT)>=0 ){
-
-            if(x<=FONT+2){
-
-                g_sprintf (tesxas,"Memory_used %s \nMemory_total %s \n"
-                                   "Swap_used %s \nSwap_total %s",
-                           g_format_size_full(0,G_FORMAT_SIZE_IEC_UNITS),
-                           g_format_size_full(temp->memory_total,G_FORMAT_SIZE_IEC_UNITS),
-                           g_format_size_full(0,G_FORMAT_SIZE_IEC_UNITS),
-                           g_format_size_full(temp->swap_total,G_FORMAT_SIZE_IEC_UNITS)
-                );
-                gtk_widget_set_tooltip_markup (window,
-                                               tesxas);
-
-                return TRUE;
-            }
-
-            a=(int)((x/FONT)-1)*INCREMENT;
-
-
-            while(temp->next!=NULL){
-                delay+=temp->delay_time;
-                if(delay==a){
-                    break;
-                }
-                if(delay>a){
-                    return TRUE;
-                }
-                temp=temp->next;
-            }
-
-            g_sprintf (tesxas,"Memory_used %s \nMemory_total %s \n"
-                    "Swap_used %s \nSwap_total %s",
-                       g_format_size_full(temp->memory_used,G_FORMAT_SIZE_IEC_UNITS),
-                       g_format_size_full(temp->memory_total,G_FORMAT_SIZE_IEC_UNITS),
-                       g_format_size_full(temp->swap_used,G_FORMAT_SIZE_IEC_UNITS),
-                       g_format_size_full(temp->swap_total,G_FORMAT_SIZE_IEC_UNITS)
-            );
-
-            gtk_widget_set_tooltip_markup (window,
-                                           tesxas);
-
-
-
-        }
-
-    }
-
-
-
-
-
-    return TRUE;
-}
-
-static gboolean
-motion_notify_event_cpu(GtkWidget *widget, GdkEventMotion *event, GtkWidget *window_p)
-{
-    double x;
-    double delay=0;
-    int a=0;
-    Cpu_list *temp=array;
-
-   gchar tesxas[100];
-
-
-
-
-    if(event->type==GDK_MOTION_NOTIFY){
-
-        x=event->x;
-
-        if(x<FONT-2){
-            return TRUE;
-        }
-        if(fmod(x,FONT)<=2 && fmod(x,FONT)>=0 ){
-
-            if(x<=FONT+2){
-
-                g_sprintf (tesxas,"Cpu0 %.2f \nCpu1 %.2f \n"
-                        "Cpu2 %.2f \nCpu3 %.2f",0.0,0.0,0.0,0.0);
-                gtk_widget_set_tooltip_markup (window_p,
-                                               tesxas);
-                printf("%s\n",tesxas);
-                return TRUE;
-            }
-
-            a=(int)((x/FONT)-1)*INCREMENT;
-
-
-           while(temp->next!=NULL){
-                delay+=temp->delay_time;
-               if(delay==a){
-                   break;
-               }
-               if(delay>a){
-                   return TRUE;
-               }
-                temp=temp->next;
-            }
-
-            g_sprintf (tesxas,"Cpu0 %.2f \nCpu1 %.2f \n"
-                    "Cpu2 %.2f \nCpu3 %.2f",temp->data[0],temp->data[1],temp->data[2],temp->data[3]);
-
-            gtk_widget_set_tooltip_markup (window_p,
-                                           tesxas);
-            printf("%s\n",tesxas);
-
-
-            }
-
-
-
-
-    }
-
-
-
-
-
-    return TRUE;
-}
 
 void value_changed( GtkAdjustment *adj_p) {
 
@@ -326,18 +55,22 @@ void value_changed( GtkAdjustment *adj_p) {
     if((c)>0){//got bigger
 
         if(c>FONT){ //bigger then one increment
-            if(a==temp){
+            if(a>=temp){
 
              (*value)=a/FONT;
 
                 ((*value)=((*value)*FONT));
                 if(interrupts==false){
+                    if(a>temp){
+                        (*value)=temp;
+                    }
                     value1=value2=value3=(*value);
                     gtk_adjustment_set_value(adj,(*value));
                     gtk_adjustment_set_value(adj2,(*value));
                     gtk_adjustment_set_value(adj3,(*value));
                 }
                 else{
+                 //   printf("value1 %d\n",(int)value4);
                     gtk_adjustment_set_value(adj_p,(*value));
                 }
 
@@ -349,12 +82,14 @@ void value_changed( GtkAdjustment *adj_p) {
             (*value)=c*FONT;
 
             if(interrupts==false){
+
                 value1=value2=value3=(*value);
                 gtk_adjustment_set_value(adj,(*value));
                 gtk_adjustment_set_value(adj2,(*value));
                 gtk_adjustment_set_value(adj3,(*value));
             }
             else{
+              //  printf("value2 %d\n",(int)value4);
                 gtk_adjustment_set_value(adj_p,(*value));
             }
             gtk_widget_queue_draw(widget);
@@ -362,7 +97,7 @@ void value_changed( GtkAdjustment *adj_p) {
         }
         else{
 
-            if(a==temp){
+            if(a>=temp){
 
                 (*value)=a/FONT;
 
@@ -371,12 +106,17 @@ void value_changed( GtkAdjustment *adj_p) {
 
 
                 if(interrupts==false){
+                    if(a>temp){
+                        (*value)=a;
+                    }
                     value1=value2=value3=(*value);
                     gtk_adjustment_set_value(adj,(*value));
                     gtk_adjustment_set_value(adj2,(*value));
                     gtk_adjustment_set_value(adj3,(*value));
                 }
                 else{
+                    (*value)=a;
+                //    printf("value3 %d\n",(int)value4);
                     gtk_adjustment_set_value(adj_p,(*value));
                 }
                 gtk_widget_queue_draw(widget);
@@ -446,9 +186,27 @@ void value_changed( GtkAdjustment *adj_p) {
 
 
 }
+void value_changed_vertical_change( GtkAdjustment *adj_change, int count){
 
+    Cpu_list *cpu_list=cpu_array;
+    int delay=0;
+   // printf("count %d\n",count);
+    for(int i=0;i<count;i++){
+        delay+=cpu_list->delay_time;
+        cpu_list=cpu_list->next;
+    }
+   // printf("delay %d\n",delay);
+    gtk_adjustment_set_value(adj_change,(delay)/INCREMENT*FONT);
+
+    gtk_widget_queue_draw(window);
+
+
+
+}
 void value_changed_vertical( GtkAdjustment *adj_p) {
 
+
+  //  adj_p   =  gtk_scrollable_get_vadjustment(GTK_SCROLLABLE(viewport4));
     int a=(int)gtk_adjustment_get_value(adj_p);
     int c=0;
     double *value;
@@ -461,17 +219,17 @@ void value_changed_vertical( GtkAdjustment *adj_p) {
 
   int page_size= (int) gtk_adjustment_get_page_size(adj_p);
     int temp=(int)(gtk_adjustment_get_upper(adj_p)-gtk_adjustment_get_page_size(adj_p));
-    printf("a %d value %f upper %d page_size %d \n",a,*value,temp,page_size);
+   // printf("a %d value %f upper %d page_size %d \n",a,*value,temp,page_size);
     c=(int)(a-(*value));
 
 
     if((c)>0){//got bigger
 
         if(c>page_size){ //bigger then one increment
-            if(a==temp){
+            if(a>=temp){
 
                 (*value)=a/page_size;
-
+                value_changed_vertical_change(adj,(int)(*value));
                 ((*value)=((*value)*page_size));
                 gtk_adjustment_set_value(adj_p,(*value));
 
@@ -487,11 +245,11 @@ void value_changed_vertical( GtkAdjustment *adj_p) {
         }
         else{
 
-            if(a==temp){
+            if(a>=temp){
 
                 (*value)=a/page_size;
 
-
+                value_changed_vertical_change(adj,(int)(*value));
                 ((*value)=((*value)*page_size));
 
 
@@ -501,6 +259,7 @@ void value_changed_vertical( GtkAdjustment *adj_p) {
             }
 
             (*value)+=page_size;
+            value_changed_vertical_change(adj,(int) (*value)/page_size);
             gtk_adjustment_set_value(adj_p,(*value));
             gtk_widget_queue_draw(widget);
             return;
@@ -508,16 +267,33 @@ void value_changed_vertical( GtkAdjustment *adj_p) {
         }
     }
     else if(c<0){//got smaller
+
         if(c<-page_size){ //bigger then one increment
-            c=a/page_size;//clipping
-            (*value)=c*page_size;
+            if(a>=temp){
+                (*value)=temp-page_size;
+                value_changed_vertical_change(adj,(int)(*value)/page_size);
+                gtk_adjustment_set_value(adj_p,(*value));
+                gtk_widget_queue_draw(widget);
+                return;
+            }
+
+            (*value)=a/page_size;//clipping
+            value_changed_vertical_change(adj,(int)(*value));
+            (*value)=(*value)*page_size;
             gtk_adjustment_set_value(adj_p,(*value));
             gtk_widget_queue_draw(widget);
             return;
         }
         else{
+            if(a>=temp){
+                (*value)=temp-page_size;
+                value_changed_vertical_change(adj,(int)(*value)/page_size);
+                gtk_adjustment_set_value(adj_p,(*value));
+                gtk_widget_queue_draw(widget);
+                return;
+            }
             (*value)-=page_size;
-
+            value_changed_vertical_change(adj,(int)(*value)/page_size);
             gtk_adjustment_set_value(adj_p,(*value));
             gtk_widget_queue_draw(widget);
             return;
@@ -586,7 +362,7 @@ activate (GtkApplication *app,
 
     /* Create a window with a title, and a default size */
     window = gtk_application_window_new (app);
-    gtk_window_set_title (GTK_WINDOW (window), "ScrolledWindow Example");
+    gtk_window_set_title (GTK_WINDOW (window), "System monitor static");
     gtk_window_set_default_size (GTK_WINDOW (window), 1000, 800);
 
     /* Create the scrolled window. Usually NULL is passed for both parameters so
@@ -666,7 +442,7 @@ activate (GtkApplication *app,
     gtk_container_add (GTK_CONTAINER (window), vbox);
 
 
-    g_signal_connect (G_OBJECT (graph), "draw", G_CALLBACK(on_draw_event_cpu_mem), array);
+    g_signal_connect (G_OBJECT (graph), "draw", G_CALLBACK(on_draw_event_cpu_mem), cpu_array);
     g_signal_connect (G_OBJECT (graph2), "draw", G_CALLBACK(on_draw_event_cpu_mem), memory_array);
     g_signal_connect (G_OBJECT (graph3), "draw", G_CALLBACK(on_draw_event_cpu_mem), net_array);
     g_signal_connect (G_OBJECT (graph4), "draw", G_CALLBACK(on_draw_event_cpu_mem), interrupts_list);
@@ -686,11 +462,11 @@ activate (GtkApplication *app,
     g_signal_connect (G_OBJECT (adj_horizontal), "value_changed", G_CALLBACK(value_changed),NULL);
     g_signal_connect (G_OBJECT (adj_vertical), "value_changed", G_CALLBACK(value_changed_vertical),NULL);
     g_signal_connect (G_OBJECT (graph), "motion_notify_event",
-                      G_CALLBACK(motion_notify_event_cpu), scrolled_window);
+                      G_CALLBACK(motion_notify_event_cpu), cpu_array);
     g_signal_connect (G_OBJECT (graph2), "motion_notify_event",
-                      G_CALLBACK(motion_notify_event_memory), NULL);
+                      G_CALLBACK(motion_notify_event_memory), memory_array);
     g_signal_connect (G_OBJECT (graph3), "motion_notify_event",
-                      G_CALLBACK(motion_notify_event_net), NULL);
+                      G_CALLBACK(motion_notify_event_net), net_array);
     g_signal_connect (G_OBJECT (graph4), "motion_notify_event",
                       G_CALLBACK(motion_notify_event_interrupts), NULL);
 
@@ -725,7 +501,7 @@ activate (GtkApplication *app,
 int
 main (int argc, char **argv)
 {
-  //  gtk_disable_setlocale();
+    gtk_disable_setlocale();
     GtkApplication *app;
     int status;
     list_num_size=0;
@@ -743,8 +519,9 @@ main (int argc, char **argv)
     interrupts_list=NULL;
     Interrupts_List *temp_list_int=NULL;
     Interrupts_elements *temp_intrp=NULL;
-    array=NULL;
-    if(!interrupts_read(&interrupts_list)){
+
+
+    if(interrupts_read(&interrupts_list)){
         while(interrupts_list){
             temp_list_int=interrupts_list;
             interrupts_list=interrupts_list->next;
@@ -761,20 +538,43 @@ main (int argc, char **argv)
         printf("interrupts read error \n");
         return -1;
     }
+//    temp_list_int=interrupts_list;
+//    for(int i=0;i<82;i++){
+//        temp_intrp=temp_list_int->pointer;
+//        printf("i %d\n",i);
+//        while(temp_intrp){
+//            printf("%s\n",temp_intrp->interrupts.irq);
+//            temp_intrp=temp_intrp->next;
+//        }
+//        temp_list_int=temp_list_int->next;
+//
+//    }
 
-   if(!cpu_read(&array)) {
-       while(array){
-           temp=array;
-           array=array->next;
+   if(cpu_read(&cpu_array)) {
+       while(cpu_array){
+           temp=cpu_array;
+           cpu_array=cpu_array->next;
            free(temp);
 
        }
-       array=NULL;
+       while(interrupts_list){
+           temp_list_int=interrupts_list;
+           interrupts_list=interrupts_list->next;
+           while(temp_list_int->pointer){
+               temp_intrp=temp_list_int->pointer;
+               temp_list_int->pointer=temp_list_int->pointer->next;
+               free(temp_intrp);
+           }
+           free(temp_list_int);
+
+       }
+       interrupts_list=NULL;
+       cpu_array=NULL;
 
        printf("cpu read erro \n");
        return -1;
    }
-    if(!netw_read(&net_array, &max_number_net)){
+    if(netw_read(&net_array, &max_number_net)){
         while(net_array){
             temp_net=net_array;
             net_array=net_array->next;
@@ -783,18 +583,30 @@ main (int argc, char **argv)
         }
         net_array=NULL;
 
-        while(array){
-            temp=array;
-            array=array->next;
+        while(cpu_array){
+            temp=cpu_array;
+            cpu_array=cpu_array->next;
             free(temp);
 
         }
-        array=NULL;
+        cpu_array=NULL;
+        while(interrupts_list){
+            temp_list_int=interrupts_list;
+            interrupts_list=interrupts_list->next;
+            while(temp_list_int->pointer){
+                temp_intrp=temp_list_int->pointer;
+                temp_list_int->pointer=temp_list_int->pointer->next;
+                free(temp_intrp);
+            }
+            free(temp_list_int);
+
+        }
+        interrupts_list=NULL;
 
         printf("network read erro \n");
         return -1;
     }
-   if(!memory_read(&memory_array)){
+   if(memory_read(&memory_array)){
        while(net_array){
            temp_net=net_array;
            net_array=net_array->next;
@@ -803,13 +615,13 @@ main (int argc, char **argv)
        }
        net_array=NULL;
 
-       while(array){
-           temp=array;
-           array=array->next;
+       while(cpu_array){
+           temp=cpu_array;
+           cpu_array=cpu_array->next;
            free(temp);
 
        }
-       array=NULL;
+       cpu_array=NULL;
 
        while(memory_array){
            temp_mem=memory_array;
@@ -817,14 +629,27 @@ main (int argc, char **argv)
            free(temp_mem);
 
        }
+
        memory_array=NULL;
+       while(interrupts_list){
+           temp_list_int=interrupts_list;
+           interrupts_list=interrupts_list->next;
+           while(temp_list_int->pointer){
+               temp_intrp=temp_list_int->pointer;
+               temp_list_int->pointer=temp_list_int->pointer->next;
+               free(temp_intrp);
+           }
+           free(temp_list_int);
+
+       }
+       interrupts_list=NULL;
 
        printf("network read erro \n");
        return -1;
    }
 
 
-    app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+    app = gtk_application_new (NULL, G_APPLICATION_FLAGS_NONE);
     g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
 
 
@@ -832,9 +657,9 @@ main (int argc, char **argv)
 
     g_object_unref (app);
 
-    while(array){
-        temp=array;
-        array=array->next;
+    while(cpu_array){
+        temp=cpu_array;
+        cpu_array=cpu_array->next;
         free(temp);
 
     }
