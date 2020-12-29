@@ -20,4 +20,5 @@ int interrupt_list_read(Interrupts_List **array,FILE *fp,char buffer_r[512]);
 int device_list_read(Device_List **array,FILE *fp,char buffer_r[512]);
 int device_element_read(Device_List **array,FILE *fp,char buffer_r[512]);
 int device_read(Device_List **array);
+int task_read(Task_List **array);
 #endif //GTK_SCROLLED_WINDOW_READING_H

@@ -17,7 +17,7 @@
 Cpu_list *cpu_array=NULL;
 Network *net_array=NULL;
 Memory_list *memory_array=NULL;
-
+void value_changed_horizontal_change(GtkAdjustment *adj_change, int count);
 void value_changed( GtkAdjustment *adj_p) {
 
     int a=(int)gtk_adjustment_get_value(adj_p);
@@ -71,11 +71,11 @@ void value_changed( GtkAdjustment *adj_p) {
                     gtk_adjustment_set_value(adj3,(*value));
                 }
                 else{
-                 //   printf("value1 %d\n",(int)value4);
+
                     gtk_adjustment_set_value(adj_p,(*value));
                 }
 
-
+                value_changed_horizontal_change(adj_vertical,(int)((*value)/FONT*250));
                 gtk_widget_queue_draw(widget);
                 return;
             }
@@ -93,6 +93,7 @@ void value_changed( GtkAdjustment *adj_p) {
               //  printf("value2 %d\n",(int)value4);
                 gtk_adjustment_set_value(adj_p,(*value));
             }
+            value_changed_horizontal_change(adj_vertical,(int)((*value)/FONT*250));
             gtk_widget_queue_draw(widget);
             return;
         }
@@ -117,9 +118,10 @@ void value_changed( GtkAdjustment *adj_p) {
                 }
                 else{
                     (*value)=a;
-                //    printf("value3 %d\n",(int)value4);
+
                     gtk_adjustment_set_value(adj_p,(*value));
                 }
+                value_changed_horizontal_change(adj_vertical,(int)((*value)/FONT*250));
                 gtk_widget_queue_draw(widget);
                 return;
             }
@@ -133,6 +135,7 @@ void value_changed( GtkAdjustment *adj_p) {
             else{
                 gtk_adjustment_set_value(adj_p,(*value));
             }
+            value_changed_horizontal_change(adj_vertical,(int)((*value)/FONT*250));
             gtk_widget_queue_draw(widget);
             return;
 
@@ -151,6 +154,7 @@ void value_changed( GtkAdjustment *adj_p) {
             else{
                 gtk_adjustment_set_value(adj_p,(*value));
             }
+            value_changed_horizontal_change(adj_vertical,(int)((*value)/FONT*250));
             gtk_widget_queue_draw(widget);
             return;
         }
@@ -165,6 +169,7 @@ void value_changed( GtkAdjustment *adj_p) {
             else{
                 gtk_adjustment_set_value(adj_p,(*value));
             }
+            value_changed_horizontal_change(adj_vertical,(int)((*value)/FONT*250));
             gtk_widget_queue_draw(widget);
             return;
 
@@ -187,26 +192,53 @@ void value_changed( GtkAdjustment *adj_p) {
 
 
 }
+
+void value_changed_horizontal_change(GtkAdjustment *adj_change, int count){
+
+
+    Device_List *device_temp=device_list;
+    Task_List *task_temp=task_list;
+    int delay=0;
+    int num=0;
+    while(device_temp->next){
+        delay+=task_temp->delay_time;
+        num++;
+        if(delay>count){
+            return;
+        }
+        if(delay==count){
+            break;
+        }
+        task_temp=task_temp->next;
+        device_temp=device_temp->next;
+
+    }
+    gtk_adjustment_set_value(adj_change,num*gtk_adjustment_get_page_size(adj_change));
+    device_check(device_temp,device_temp->device_num);
+    task_check(task_temp,task_temp->task_num);
+
+}
 void value_changed_vertical_change( GtkAdjustment *adj_change, int count){
 
     Cpu_list *cpu_list=cpu_array;
-    Device_List *device_temp=devices_new;
+    Device_List *device_temp=device_list;
+    Task_List *task_temp=task_list;
     int delay=0;
-   // printf("count %d\n",count);
+
     for(int i=0;i<count;i++){
 
         delay+=cpu_list->delay_time;
         cpu_list=cpu_list->next;
         device_temp=device_temp->next;
+        task_temp=task_temp->next;
     }
 
-    count =device_temp->device_num;
-  //  printf("delay %d \n",delay);
 
 
     gtk_adjustment_set_value(adj_change,(delay)/INCREMENT*FONT);
-    device_check(device_temp,count);
-    gtk_widget_queue_draw(window);
+    device_check(device_temp,device_temp->device_num);
+    task_check(task_temp,task_temp->task_num);
+
 
 
 
@@ -214,7 +246,7 @@ void value_changed_vertical_change( GtkAdjustment *adj_change, int count){
 void value_changed_vertical( GtkAdjustment *adj_p) {
 
 
-  //  adj_p   =  gtk_scrollable_get_vadjustment(GTK_SCROLLABLE(viewport4));
+
     int a=(int)gtk_adjustment_get_value(adj_p);
     int c=0;
     double *value;
@@ -227,7 +259,7 @@ void value_changed_vertical( GtkAdjustment *adj_p) {
 
   int page_size= (int) gtk_adjustment_get_page_size(adj_p);
     int temp=(int)(gtk_adjustment_get_upper(adj_p)-gtk_adjustment_get_page_size(adj_p));
-   // printf("a %d value %f upper %d page_size %d \n",a,*value,temp,page_size);
+
     c=(int)(a-(*value));
 
 
@@ -280,8 +312,8 @@ void value_changed_vertical( GtkAdjustment *adj_p) {
     }
     else if(c<0){//got smaller
 
-        if(c>page_size){ //bigger then one increment
-       // if(c<page_size){ //bigger then one increment
+
+        if(c<page_size){ //smaller then one increment
             if(a>=temp){
 
                 (*value)=temp-page_size;
@@ -346,25 +378,33 @@ activate (GtkApplication *app,
     GtkWidget *hbox2;
     vbox            = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
     hbox            = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
-    hbox2            = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
+    hbox2           = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, 1, 1, 0);
     gtk_box_pack_start(GTK_BOX(vbox), hbox2, 1, 1, 0);
     graph=gtk_drawing_area_new();
     graph2=gtk_drawing_area_new();
     graph3=gtk_drawing_area_new();
     graph4=gtk_drawing_area_new();
+
     treeview_devices = gtk_tree_view_new();
+    treeview_tasks   = gtk_tree_view_new();
+
     create_list_store_dev();
+    create_list_store_task();
+
     gtk_tree_view_set_model(GTK_TREE_VIEW(treeview_devices), GTK_TREE_MODEL(list_devices));
     gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(list_devices), 1, GTK_SORT_ASCENDING);
-    gtk_container_add(GTK_CONTAINER(device_swindow), treeview_devices);
+
+    gtk_tree_view_set_model(GTK_TREE_VIEW(treeview_tasks), GTK_TREE_MODEL(list_tasks));
+    gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(list_tasks), 1, GTK_SORT_ASCENDING);
+  //  gtk_container_add(GTK_CONTAINER(device_swindow), treeview_devices);
 
 
     viewport = gtk_viewport_new (NULL,NULL);
     viewport2 = gtk_viewport_new (NULL,NULL);
     viewport3 = gtk_viewport_new (NULL,NULL);
     viewport4 = gtk_viewport_new (NULL,NULL);
-    viewport5 = gtk_viewport_new (NULL,NULL);
+
 
     gtk_container_add (GTK_CONTAINER(viewport), graph);
 
@@ -396,6 +436,7 @@ activate (GtkApplication *app,
     device_swindow   = gtk_scrolled_window_new(NULL, NULL);
     process_swindow  = gtk_scrolled_window_new(NULL, NULL);
     gtk_container_add(GTK_CONTAINER(device_swindow), treeview_devices);
+    gtk_container_add(GTK_CONTAINER(process_swindow), treeview_tasks);
 
     // scrollbar=gtk_scrollbar_new(GTK_ORIENTATION_HORIZONTAL,(GtkAdjustment*)adj);
 
@@ -523,7 +564,8 @@ activate (GtkApplication *app,
                                    | GDK_POINTER_MOTION_HINT_MASK);
 
 
-    device_check(devices_new,devices_new->device_num);
+    device_check(device_list,device_list->device_num);
+    task_check(task_list,task_list->task_num);
 
     gtk_widget_show_all (window);
 
@@ -555,12 +597,31 @@ main (int argc, char **argv)
     Device_List *temp_list_dev=NULL;
     D_Collection *temp_dev=NULL;
     devices_old_list=calloc(1,sizeof(Device_List));
+    task_old_list=calloc(1,sizeof(Task_List));
+    Task_List *temp_task_list=NULL;
+    T_Collection *temp_task=NULL;
+   if(task_read(&task_list)) {
+       while(task_list){
+           temp_task_list=task_list;
+           task_list=task_list->next;
+           while(temp_task_list->pointer){
+               temp_task=temp_task_list->pointer;
+               temp_task_list->pointer=temp_task_list->pointer->next;
+               free(temp_task);
+           }
+           free(temp_task_list);
 
+       }
+       task_list=NULL;
 
-    if(device_read(&devices_new)){
-        while(devices_new){
-            temp_list_dev=devices_new;
-            devices_new=devices_new->next;
+       printf("interrupts read error \n");
+       return -1;
+   }
+
+    if(device_read(&device_list)){
+        while(device_list){
+            temp_list_dev=device_list;
+            device_list=device_list->next;
             while(temp_list_dev->pointer){
                 temp_dev=temp_list_dev->pointer;
                 temp_list_dev->pointer=temp_list_dev->pointer->next;
@@ -569,7 +630,7 @@ main (int argc, char **argv)
             free(temp_list_dev);
 
         }
-        devices_new=NULL;
+        device_list=NULL;
 
         printf("interrupts read error \n");
         return -1;
@@ -747,9 +808,9 @@ main (int argc, char **argv)
     }
     devices_old_list=NULL;
 
-    while(devices_new){
-        temp_list_dev=devices_new;
-        devices_new=devices_new->next;
+    while(device_list){
+        temp_list_dev=device_list;
+        device_list=device_list->next;
         while(temp_list_dev->pointer){
             temp_dev=temp_list_dev->pointer;
             temp_list_dev->pointer=temp_list_dev->pointer->next;
@@ -758,8 +819,34 @@ main (int argc, char **argv)
         free(temp_list_dev);
 
     }
-    devices_new=NULL;
+    device_list=NULL;
     gtk_tree_store_clear(list_devices);
+
+    while(task_list){
+        temp_task_list=task_list;
+        task_list=task_list->next;
+        while(temp_task_list->pointer){
+            temp_task=temp_task_list->pointer;
+            temp_task_list->pointer=temp_task_list->pointer->next;
+            free(temp_task);
+        }
+        free(temp_task_list);
+
+    }
+    task_list=NULL;
+    while(task_old_list){
+        temp_task_list=task_old_list;
+        task_old_list=task_old_list->next;
+        while(temp_task_list->pointer){
+            temp_task=temp_task_list->pointer;
+            temp_task_list->pointer=temp_task_list->pointer->next;
+            free(temp_task);
+        }
+        free(temp_task_list);
+
+    }
+    task_old_list=NULL;
+    gtk_tree_store_clear(list_tasks);
 
     return status;
 }

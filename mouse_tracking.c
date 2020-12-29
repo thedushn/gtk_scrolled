@@ -259,7 +259,7 @@ gboolean motion_notify_event_cpu(GtkWidget *widget, GdkEventMotion *event, Cpu_l
 
                 return TRUE;
             }
-            printf("x %f y%f\n",event->x,event->y);
+
             a=(int)((x/FONT)-1)*INCREMENT;
 
 
@@ -269,7 +269,7 @@ gboolean motion_notify_event_cpu(GtkWidget *widget, GdkEventMotion *event, Cpu_l
                     break;
                 }
                 if(delay>a){
-                    printf("hello there %d \n",a);
+
                     return FALSE;
                 }
                 array=array->next;

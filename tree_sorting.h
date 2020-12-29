@@ -13,13 +13,19 @@
 #include <gtk/gtk.h>
 #include <stdlib.h>
 
-int task_check(T_Collection *tasks_new, int task_num);
+int task_check(Task_List *tasks_new_list, int task_num);
+
+int refresh_task_data(Task_List *tasks_new_list,int task_num);
+
+void delete_old_tasks(T_Collection **array);
+
+int insert_new_tasks(T_Collection **array,Task_List *task_new_list,int task_num);
 
 int device_check(Device_List *devices_new, int dev_num);
 
 int refresh_device_data(Device_List *devices_new_list, int dev_num);
 
-int delete_old_devices();
+void delete_old_devices(D_Collection **array );
 
 void remove_task_item(gint pid);
 
@@ -60,9 +66,10 @@ void test_strtol(int val);
 GtkTreeStore *list_tasks; /*liststore for tasks*/
 GtkTreeStore *list_devices;
 
-T_Collection *tasks_old;/*!list to the tasks that we keep on client */
+Task_List *task_old_list;
+Task_List *task_list;
 Device_List *devices_old_list;
-Device_List *devices_new;
+Device_List *device_list;
 
 GtkWidget *proc_window;
 
