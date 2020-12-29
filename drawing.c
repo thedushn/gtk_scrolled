@@ -167,7 +167,7 @@ gboolean on_draw_event_cpu_mem(GtkWidget *widget, cairo_t *cr, void *array1) {
     Interrupts_elements *temp_intrp=NULL;
 
     if(widget==graph){
-        height = gtk_widget_get_allocated_height(scrolled_window);
+        height = gtk_widget_get_allocated_height(cpu_swindow);
        // printf("value  %f \n",gtk_adjustment_get_value(adj));
         adj   =  gtk_scrollable_get_hadjustment(GTK_SCROLLABLE(viewport));
        // printf("upper after %f \n",gtk_adjustment_get_upper(adj));
@@ -455,9 +455,9 @@ void draw_percentages(cairo_t *cr, double height, double font_size, double posit
 
 
     double upper=gtk_adjustment_get_upper(adj_p);
-    double page_size=gtk_adjustment_get_page_size(adj_p);
-    int number=(int)position%(int)step;
-    number=(int)step-number;
+
+    int number=(int)position%step;
+    number=step-number;
     cairo_set_font_size(cr, font_size);
 
     cairo_set_source_rgb(cr, 0, 1, 1);

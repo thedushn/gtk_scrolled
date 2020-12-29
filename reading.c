@@ -275,9 +275,9 @@ int memory_read(Memory_list **array){
 int interrupt_list_read(Interrupts_List **array,FILE *fp,char buffer_r[512]){
 
     char buffer[512] = {0};
-    static int c=0;
+
     list_size_interrupts++;
-    printf("%d\n",c);
+
     Interrupts_List *temp_list = NULL;
 
 
@@ -355,7 +355,7 @@ int interrupt_list_read(Interrupts_List **array,FILE *fp,char buffer_r[512]){
 int interrupt_element_read(Interrupts_List **array,FILE *fp,char buffer_r[512]){
 
     char buffer[512];
-    int ret;
+
     Interrupts_List *temp_list = *array;
 
 
@@ -368,7 +368,8 @@ int interrupt_element_read(Interrupts_List **array,FILE *fp,char buffer_r[512]){
         free(temp);
        return -1;
     }
-    if ((ret = sscanf(buffer_r, "%3s %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %s %s %s %s",
+
+    if (( sscanf(buffer_r, "%3s %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %s %s %s %s",
                       temp->interrupts.irq,
                       &temp->interrupts.CPU0,
                       &temp->interrupts.CPU1,
@@ -385,11 +386,8 @@ int interrupt_element_read(Interrupts_List **array,FILE *fp,char buffer_r[512]){
             temp_list->pointer->prev = NULL;
             last = temp;
 
-        } else {
-            temp->prev = last;
-            last->next = temp;
-            last = temp;
         }
+
         if (temp_list->max_number < temp->interrupts.CPU0) {
 
             temp_list->max_number = temp->interrupts.CPU0;
@@ -432,7 +430,7 @@ int interrupt_element_read(Interrupts_List **array,FILE *fp,char buffer_r[512]){
             free(temp);
           return -1;
         }
-        if ((ret = sscanf(buffer, "%3s %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %s %s %s %s",
+        if (( sscanf(buffer, "%3s %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %s %s %s %s",
                           temp->interrupts.irq,
                           &temp->interrupts.CPU0,
                           &temp->interrupts.CPU1,
@@ -512,22 +510,17 @@ int interrupts_read(Interrupts_List **array) {
 
         if (strncmp(buffer, "Time:", 5) == 0) {
 
-           if(interrupt_list_read(array,fp,buffer)!=0){
-               printf("kabum\n");
-               return -1;
-           }
-            else{
-               return 0;
-       }
 
 
+           if(interrupt_list_read(array,fp,buffer)!=0 ? (ret=-1): ( ret=0) );
 
 
         }
         else{
             printf("buffer %s\n",buffer);
 
-            return 0;
+            ret=-1;
+            break;
             }
 
 }
@@ -539,4 +532,239 @@ int interrupts_read(Interrupts_List **array) {
 
     fclose(fp);
     return ret<0 ? -1 : 0;
+}
+int device_read(Device_List **array){
+
+    FILE *fp;
+    char *filename = "device.data";
+
+
+    int ret = 0;
+
+    char buffer[512] = {0};
+
+
+
+
+
+    if ((fp = fopen(filename, "r")) == NULL) //open file for reading
+        return -1;
+
+
+    while (fgets(buffer, sizeof(buffer), fp) != NULL ) {
+
+        if (strncmp(buffer, "Time:", 5) == 0) {
+
+
+
+            if(device_list_read(array,fp,buffer)!=0 ? (ret=-1): ( ret=0) );
+
+
+        }
+        else{
+            printf("buffer %s\n",buffer);
+
+            ret=-1;
+            break;
+        }
+
+    }
+
+
+
+
+
+
+    fclose(fp);
+    return ret<0 ? -1 : 0;
+
+}
+int device_list_read(Device_List **array,FILE *fp,char buffer_r[512]){
+
+    char buffer[512] = {0};
+
+
+
+    Device_List *temp_list = NULL;
+
+
+
+    D_Collection *temp = NULL;
+
+    char *p;
+
+    int delay = 0;
+    temp_list = (Device_List *) calloc(1, sizeof(Device_List));
+    if (temp_list == NULL) {
+        printf("calloc error %d \n", errno);
+        free(temp_list);
+        return -1;
+
+    }
+    if ((*array) == NULL) {
+        (*array) = temp_list;
+
+
+
+    } else {
+        Device_List *temp_p=(*array);
+        while(temp_p->next!=NULL){
+            temp_p=temp_p->next;
+        }
+        temp_list->prev= temp_p;
+        temp_p->next=temp_list;
+
+
+
+    }
+    if (strncmp(buffer_r, "Time:", 5) == 0) {
+        p = strrchr(buffer_r, 'D');
+        if(sscanf(p, "Delay %d", &delay)<1){
+            free(temp_list);
+            return -1;
+        }
+
+
+    }
+    else{
+        free(temp_list);
+        return -1;
+    }
+    temp_list->next = NULL;
+    temp_list->delay_time = delay;
+    temp_list->device_num = 0;
+
+    while (fgets(buffer, sizeof(buffer), fp) != NULL ) {
+        if (strncmp(buffer, "Time:", 5) != 0) {
+
+            return device_element_read(&temp_list,fp,buffer);
+        }
+        else{
+            while(temp_list->pointer){
+                temp=temp_list->pointer;
+                temp_list->pointer=temp_list->pointer->next;
+                free(temp);
+            }
+            free(temp_list);
+            temp_list=NULL;
+            return -1;
+        }
+
+
+    }
+
+
+
+
+
+    return 0;
+}
+int device_element_read(Device_List **array,FILE *fp,char buffer_r[512]){
+
+    char buffer[512];
+
+    Device_List *temp_list = *array;
+
+
+    D_Collection *temp = NULL;
+    D_Collection *last = NULL;
+    temp = (D_Collection *) calloc(1, sizeof(D_Collection));
+    if (temp == NULL) {
+        printf("calloc error %d \n", errno);
+
+        free(temp);
+        return -1;
+    }
+
+    if ((  sscanf(buffer_r,"Devices %s available %"  SCNu64 "  free %"  SCNu64 " type %s directory %s used %"  SCNu64 ""
+            " total %"  SCNu64 "\n",
+            temp->devices.name,
+            &temp->devices.avail,
+            &temp->devices.free,
+            temp->devices.type,
+            temp->devices.directory,
+            &temp->devices.used,
+            &temp->devices.total
+    ) > 2)) {
+        if (temp_list->pointer == NULL) {
+            temp_list->pointer = temp;
+            temp_list->pointer->next = NULL;
+            temp_list->pointer->prev = NULL;
+            last = temp;
+
+        }
+
+
+
+
+    } else {
+        printf("sscanf error  \n");
+        printf("buffer %s\n", buffer_r);
+        free(temp);
+        return -1;
+    }
+    temp_list->device_num++;
+
+
+
+    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+
+        if (strncmp(buffer, "Time:", 5) == 0){
+            if(device_list_read(array,fp,buffer)!=0){
+                return -1;
+            }
+            printf("%d\n",temp_list->device_num);
+            return 0;
+
+        }
+        temp = (D_Collection *) calloc(1, sizeof(D_Collection));
+        if (temp == NULL) {
+            printf("calloc error %d \n", errno);
+
+            free(temp);
+            return -1;
+        }
+        if ((  sscanf(buffer,"Devices %s available %"  SCNu64 "  free %"  SCNu64 " type %s directory %s used %"  SCNu64 ""
+                              " total %"  SCNu64 "\n",
+                      temp->devices.name,
+                      &temp->devices.avail,
+                      &temp->devices.free,
+                      temp->devices.type,
+                      temp->devices.directory,
+                      &temp->devices.used,
+                      &temp->devices.total
+        ) > 2)) {
+            if (temp_list->pointer == NULL) {
+                temp_list->pointer = temp;
+                temp_list->pointer->next = NULL;
+                temp_list->pointer->prev = NULL;
+                last = temp;
+
+            } else {
+                temp->prev = last;
+                last->next = temp;
+                last = temp;
+            }
+            temp->devices.checked=false;
+
+
+
+        } else {
+            printf("sscanf error  \n");
+            printf("buffer %s\n", buffer);
+            free(temp);
+            if (strncmp(buffer, "Time:", 5) != 0) {
+                printf("buffer %s\n", buffer);
+
+                return -1;
+            }
+
+            return -1;
+        }
+        temp_list->device_num++;
+
+
+    }
+
+    return 0;
 }

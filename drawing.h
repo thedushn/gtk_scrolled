@@ -12,14 +12,17 @@
 
 
 GtkWidget *window;
-GtkWidget *scrolled_window;
+GtkWidget *cpu_swindow;
 GtkWidget *scrolled_window2;
 GtkWidget *scrolled_window3;
 GtkWidget *scrolled_window4;
+GtkWidget *device_swindow;
+GtkWidget *process_swindow;
 GtkWidget *viewport;
 GtkWidget *viewport2;
 GtkWidget *viewport3;
 GtkWidget *viewport4;
+GtkWidget *viewport5;
 GtkAdjustment *adj;
 GtkAdjustment *adj2;
 GtkAdjustment *adj3;
@@ -36,7 +39,8 @@ double value2;
 double value3;
 double value4;
 double value5;
-
+GtkWidget *treeview_devices;
+GtkWidget *treeview_tasks;
 
 
 

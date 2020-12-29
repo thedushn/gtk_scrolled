@@ -8,6 +8,7 @@
 #include <glib/gprintf.h>
 #include <inttypes.h>
 #include "mouse_tracking.h"
+#include "tree_sorting.h"
 
 
 
@@ -189,15 +190,22 @@ void value_changed( GtkAdjustment *adj_p) {
 void value_changed_vertical_change( GtkAdjustment *adj_change, int count){
 
     Cpu_list *cpu_list=cpu_array;
+    Device_List *device_temp=devices_new;
     int delay=0;
    // printf("count %d\n",count);
     for(int i=0;i<count;i++){
+
         delay+=cpu_list->delay_time;
         cpu_list=cpu_list->next;
+        device_temp=device_temp->next;
     }
-   // printf("delay %d\n",delay);
-    gtk_adjustment_set_value(adj_change,(delay)/INCREMENT*FONT);
 
+    count =device_temp->device_num;
+  //  printf("delay %d \n",delay);
+
+
+    gtk_adjustment_set_value(adj_change,(delay)/INCREMENT*FONT);
+    device_check(device_temp,count);
     gtk_widget_queue_draw(window);
 
 
@@ -227,7 +235,7 @@ void value_changed_vertical( GtkAdjustment *adj_p) {
 
         if(c>page_size){ //bigger then one increment
             if(a>=temp){
-
+                printf("bigger then one increment %f \n",(*value));
                 (*value)=a/page_size;
                 value_changed_vertical_change(adj,(int)(*value));
                 ((*value)=((*value)*page_size));
@@ -236,8 +244,11 @@ void value_changed_vertical( GtkAdjustment *adj_p) {
                 gtk_widget_queue_draw(widget);
                 return;
             }
-            c=a/page_size;//clipping
-            (*value)=c*page_size;
+            (*value)=a/page_size;//clipping
+            value_changed_vertical_change(adj,(int)(*value));
+            (*value)=(*value)*page_size;
+            gtk_adjustment_set_value(adj_p,(*value));
+            gtk_widget_queue_draw(widget);
 
 
             gtk_widget_queue_draw(widget);
@@ -259,6 +270,7 @@ void value_changed_vertical( GtkAdjustment *adj_p) {
             }
 
             (*value)+=page_size;
+
             value_changed_vertical_change(adj,(int) (*value)/page_size);
             gtk_adjustment_set_value(adj_p,(*value));
             gtk_widget_queue_draw(widget);
@@ -268,8 +280,10 @@ void value_changed_vertical( GtkAdjustment *adj_p) {
     }
     else if(c<0){//got smaller
 
-        if(c<-page_size){ //bigger then one increment
+        if(c>page_size){ //bigger then one increment
+       // if(c<page_size){ //bigger then one increment
             if(a>=temp){
+
                 (*value)=temp-page_size;
                 value_changed_vertical_change(adj,(int)(*value)/page_size);
                 gtk_adjustment_set_value(adj_p,(*value));
@@ -286,12 +300,14 @@ void value_changed_vertical( GtkAdjustment *adj_p) {
         }
         else{
             if(a>=temp){
+
                 (*value)=temp-page_size;
                 value_changed_vertical_change(adj,(int)(*value)/page_size);
                 gtk_adjustment_set_value(adj_p,(*value));
                 gtk_widget_queue_draw(widget);
                 return;
             }
+
             (*value)-=page_size;
             value_changed_vertical_change(adj,(int)(*value)/page_size);
             gtk_adjustment_set_value(adj_p,(*value));
@@ -337,15 +353,18 @@ activate (GtkApplication *app,
     graph2=gtk_drawing_area_new();
     graph3=gtk_drawing_area_new();
     graph4=gtk_drawing_area_new();
-
-
-
+    treeview_devices = gtk_tree_view_new();
+    create_list_store_dev();
+    gtk_tree_view_set_model(GTK_TREE_VIEW(treeview_devices), GTK_TREE_MODEL(list_devices));
+    gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(list_devices), 1, GTK_SORT_ASCENDING);
+    gtk_container_add(GTK_CONTAINER(device_swindow), treeview_devices);
 
 
     viewport = gtk_viewport_new (NULL,NULL);
     viewport2 = gtk_viewport_new (NULL,NULL);
     viewport3 = gtk_viewport_new (NULL,NULL);
     viewport4 = gtk_viewport_new (NULL,NULL);
+    viewport5 = gtk_viewport_new (NULL,NULL);
 
     gtk_container_add (GTK_CONTAINER(viewport), graph);
 
@@ -370,44 +389,54 @@ activate (GtkApplication *app,
      * the scrollbar policy to automatic allows the scrollbars to only show up
      * when needed.
      */
-    scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-    scrolled_window2 = gtk_scrolled_window_new (NULL, NULL);
-    scrolled_window3 = gtk_scrolled_window_new (NULL, NULL);
-    scrolled_window4 = gtk_scrolled_window_new (NULL, NULL);
-   // scrollbar=gtk_scrollbar_new(GTK_ORIENTATION_HORIZONTAL,(GtkAdjustment*)adj);
+    cpu_swindow      = gtk_scrolled_window_new(NULL, NULL);
+    scrolled_window2 = gtk_scrolled_window_new(NULL, NULL);
+    scrolled_window3 = gtk_scrolled_window_new(NULL, NULL);
+    scrolled_window4 = gtk_scrolled_window_new(NULL, NULL);
+    device_swindow   = gtk_scrolled_window_new(NULL, NULL);
+    process_swindow  = gtk_scrolled_window_new(NULL, NULL);
+    gtk_container_add(GTK_CONTAINER(device_swindow), treeview_devices);
+
+    // scrollbar=gtk_scrollbar_new(GTK_ORIENTATION_HORIZONTAL,(GtkAdjustment*)adj);
 
     /* Set the border width */
-    gtk_container_set_border_width (GTK_CONTAINER (scrolled_window), 10);
+    gtk_container_set_border_width (GTK_CONTAINER (cpu_swindow), 10);
     gtk_container_set_border_width (GTK_CONTAINER (scrolled_window2), 10);
     gtk_container_set_border_width (GTK_CONTAINER (scrolled_window3), 10);
     gtk_container_set_border_width (GTK_CONTAINER (scrolled_window4), 10);
     /* Extract our desired image from a file that we have */
     //image = gtk_image_new_from_file ("slika.png");
     /* And add it to the scrolled window */
-   // gtk_container_add (GTK_CONTAINER (scrolled_window), graph);
+   // gtk_container_add (GTK_CONTAINER (cpu_swindow), graph);
 
 //    gtk_container_add(GTK_CONTAINER(frame1), viewport);
 //    gtk_container_add(GTK_CONTAINER(frame2), viewport2);
-//   gtk_container_add (GTK_CONTAINER(scrolled_window), frame1);
+//   gtk_container_add (GTK_CONTAINER(cpu_swindow), frame1);
 //
 //   gtk_container_add (GTK_CONTAINER(scrolled_window2), frame2);
 
-    gtk_container_add (GTK_CONTAINER(scrolled_window), viewport);
+    gtk_container_add (GTK_CONTAINER(cpu_swindow), viewport);
     gtk_container_add (GTK_CONTAINER(scrolled_window2), viewport2);
     gtk_container_add (GTK_CONTAINER(scrolled_window3), viewport3);
     gtk_container_add (GTK_CONTAINER(scrolled_window4), viewport4);
+   // gtk_container_add (GTK_CONTAINER(device_swindow), viewport5);
 
     ///
-   // gtk_container_add (GTK_CONTAINER(scrolled_window), graph);
- //   gtk_container_add (GTK_CONTAINER(scrolled_window), scrollbar);
+   // gtk_container_add (GTK_CONTAINER(cpu_swindow), graph);
+ //   gtk_container_add (GTK_CONTAINER(cpu_swindow), scrollbar);
     /* Set the policy of the horizontal and vertical scrollbars to automatic.
      * What this means is that the scrollbars are only present if needed.
      */
-//    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+//    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (cpu_swindow),
 //                                    GTK_POLICY_AUTOMATIC,
 //                                    GTK_POLICY_AUTOMATIC);
-
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(device_swindow),
+                                   GTK_POLICY_ALWAYS,
+                                   GTK_POLICY_ALWAYS);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(process_swindow),
+                                   GTK_POLICY_AUTOMATIC,
+                                   GTK_POLICY_ALWAYS);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (cpu_swindow),
                                     GTK_POLICY_AUTOMATIC,
                                     GTK_POLICY_NEVER);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window2),
@@ -419,8 +448,8 @@ activate (GtkApplication *app,
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window4),
                                     GTK_POLICY_AUTOMATIC,
                                     GTK_POLICY_AUTOMATIC);
-    gtk_widget_set_hexpand(GTK_WIDGET(scrolled_window), TRUE);
-    gtk_widget_set_vexpand(GTK_WIDGET(scrolled_window), TRUE);
+    gtk_widget_set_hexpand(GTK_WIDGET(cpu_swindow), TRUE);
+    gtk_widget_set_vexpand(GTK_WIDGET(cpu_swindow), TRUE);
     gtk_widget_set_hexpand(GTK_WIDGET(scrolled_window2), TRUE);
     gtk_widget_set_vexpand(GTK_WIDGET(scrolled_window2), TRUE);
     gtk_widget_set_hexpand(GTK_WIDGET(scrolled_window3), TRUE);
@@ -428,17 +457,19 @@ activate (GtkApplication *app,
     gtk_widget_set_hexpand(GTK_WIDGET(scrolled_window4), TRUE);
     gtk_widget_set_vexpand(GTK_WIDGET(scrolled_window4), TRUE);
 
-    gtk_box_pack_start(GTK_BOX(hbox), scrolled_window, 0, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), cpu_swindow, 0, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), scrolled_window3, 0, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox2), scrolled_window2, 0, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox2), scrolled_window4, 0, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), device_swindow, 1, TRUE, 1);
+    gtk_box_pack_start(GTK_BOX(vbox), process_swindow, 1, TRUE, 1);
     //gtk_box_pack_start(GTK_BOX(vbox), scrolled_window2,0, TRUE, 0);
 
 
-    //gtk_box_pack_start(GTK_BOX(vbox), scrolled_window, TRUE, FALSE, 0);
-   // gtk_container_add (GTK_CONTAINER (vbox), scrolled_window);
+    //gtk_box_pack_start(GTK_BOX(vbox), cpu_swindow, TRUE, FALSE, 0);
+   // gtk_container_add (GTK_CONTAINER (vbox), cpu_swindow);
   //  gtk_container_add (GTK_CONTAINER (vbox), scrolled_window2);
-  //  gtk_container_add (GTK_CONTAINER (window), scrolled_window);
+  //  gtk_container_add (GTK_CONTAINER (window), cpu_swindow);
     gtk_container_add (GTK_CONTAINER (window), vbox);
 
 
@@ -461,13 +492,13 @@ activate (GtkApplication *app,
     g_signal_connect (G_OBJECT (adj3), "value_changed", G_CALLBACK(value_changed),NULL);
     g_signal_connect (G_OBJECT (adj_horizontal), "value_changed", G_CALLBACK(value_changed),NULL);
     g_signal_connect (G_OBJECT (adj_vertical), "value_changed", G_CALLBACK(value_changed_vertical),NULL);
-    g_signal_connect (G_OBJECT (graph), "motion_notify_event",
+    g_signal_connect (G_OBJECT (cpu_swindow), "motion_notify_event",
                       G_CALLBACK(motion_notify_event_cpu), cpu_array);
-    g_signal_connect (G_OBJECT (graph2), "motion_notify_event",
+    g_signal_connect (G_OBJECT (scrolled_window2), "motion_notify_event",
                       G_CALLBACK(motion_notify_event_memory), memory_array);
-    g_signal_connect (G_OBJECT (graph3), "motion_notify_event",
+    g_signal_connect (G_OBJECT (scrolled_window3), "motion_notify_event",
                       G_CALLBACK(motion_notify_event_net), net_array);
-    g_signal_connect (G_OBJECT (graph4), "motion_notify_event",
+    g_signal_connect (G_OBJECT (scrolled_window4), "motion_notify_event",
                       G_CALLBACK(motion_notify_event_interrupts), NULL);
 
     gtk_widget_set_events (graph, GDK_EXPOSURE_MASK
@@ -491,6 +522,8 @@ activate (GtkApplication *app,
                                    | GDK_POINTER_MOTION_MASK
                                    | GDK_POINTER_MOTION_HINT_MASK);
 
+
+    device_check(devices_new,devices_new->device_num);
 
     gtk_widget_show_all (window);
 
@@ -519,7 +552,28 @@ main (int argc, char **argv)
     interrupts_list=NULL;
     Interrupts_List *temp_list_int=NULL;
     Interrupts_elements *temp_intrp=NULL;
+    Device_List *temp_list_dev=NULL;
+    D_Collection *temp_dev=NULL;
+    devices_old_list=calloc(1,sizeof(Device_List));
 
+
+    if(device_read(&devices_new)){
+        while(devices_new){
+            temp_list_dev=devices_new;
+            devices_new=devices_new->next;
+            while(temp_list_dev->pointer){
+                temp_dev=temp_list_dev->pointer;
+                temp_list_dev->pointer=temp_list_dev->pointer->next;
+                free(temp_dev);
+            }
+            free(temp_list_dev);
+
+        }
+        devices_new=NULL;
+
+        printf("interrupts read error \n");
+        return -1;
+    }
 
     if(interrupts_read(&interrupts_list)){
         while(interrupts_list){
@@ -538,17 +592,7 @@ main (int argc, char **argv)
         printf("interrupts read error \n");
         return -1;
     }
-//    temp_list_int=interrupts_list;
-//    for(int i=0;i<82;i++){
-//        temp_intrp=temp_list_int->pointer;
-//        printf("i %d\n",i);
-//        while(temp_intrp){
-//            printf("%s\n",temp_intrp->interrupts.irq);
-//            temp_intrp=temp_intrp->next;
-//        }
-//        temp_list_int=temp_list_int->next;
-//
-//    }
+
 
    if(cpu_read(&cpu_array)) {
        while(cpu_array){
@@ -690,6 +734,32 @@ main (int argc, char **argv)
     }
     interrupts_list=NULL;
 
+    while(devices_old_list){
+        temp_list_dev=devices_old_list;
+        devices_old_list=devices_old_list->next;
+        while(temp_list_dev->pointer){
+            temp_dev=temp_list_dev->pointer;
+            temp_list_dev->pointer=temp_list_dev->pointer->next;
+            free(temp_dev);
+        }
+        free(temp_list_dev);
+
+    }
+    devices_old_list=NULL;
+
+    while(devices_new){
+        temp_list_dev=devices_new;
+        devices_new=devices_new->next;
+        while(temp_list_dev->pointer){
+            temp_dev=temp_list_dev->pointer;
+            temp_list_dev->pointer=temp_list_dev->pointer->next;
+            free(temp_dev);
+        }
+        free(temp_list_dev);
+
+    }
+    devices_new=NULL;
+    gtk_tree_store_clear(list_devices);
 
     return status;
 }
