@@ -231,6 +231,33 @@ reading.c.s:
 	$(MAKE) -f CMakeFiles/gtk_scrolled_window.dir/build.make CMakeFiles/gtk_scrolled_window.dir/reading.c.s
 .PHONY : reading.c.s
 
+tree_sorting.o: tree_sorting.c.o
+
+.PHONY : tree_sorting.o
+
+# target to build an object file
+tree_sorting.c.o:
+	$(MAKE) -f CMakeFiles/gtk_scrolled_window.dir/build.make CMakeFiles/gtk_scrolled_window.dir/tree_sorting.c.o
+.PHONY : tree_sorting.c.o
+
+tree_sorting.i: tree_sorting.c.i
+
+.PHONY : tree_sorting.i
+
+# target to preprocess a source file
+tree_sorting.c.i:
+	$(MAKE) -f CMakeFiles/gtk_scrolled_window.dir/build.make CMakeFiles/gtk_scrolled_window.dir/tree_sorting.c.i
+.PHONY : tree_sorting.c.i
+
+tree_sorting.s: tree_sorting.c.s
+
+.PHONY : tree_sorting.s
+
+# target to generate assembly for a file
+tree_sorting.c.s:
+	$(MAKE) -f CMakeFiles/gtk_scrolled_window.dir/build.make CMakeFiles/gtk_scrolled_window.dir/tree_sorting.c.s
+.PHONY : tree_sorting.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -252,6 +279,9 @@ help:
 	@echo "... reading.o"
 	@echo "... reading.i"
 	@echo "... reading.s"
+	@echo "... tree_sorting.o"
+	@echo "... tree_sorting.i"
+	@echo "... tree_sorting.s"
 .PHONY : help
 
 

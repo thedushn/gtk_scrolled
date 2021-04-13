@@ -7,6 +7,10 @@
 #IncludeRegexTransform: 
 
 /home/dushn/Desktop/gtk_scrolled_window/common.h
+stdbool.h
+-
+time.h
+-
 
 /home/dushn/Desktop/gtk_scrolled_window/drawing.c
 stdio.h
@@ -55,6 +59,8 @@ inttypes.h
 -
 mouse_tracking.h
 /home/dushn/Desktop/gtk_scrolled_window/mouse_tracking.h
+tree_sorting.h
+/home/dushn/Desktop/gtk_scrolled_window/tree_sorting.h
 
 /home/dushn/Desktop/gtk_scrolled_window/mouse_tracking.c
 mouse_tracking.h
@@ -99,6 +105,28 @@ memory.h
 -
 common.h
 /home/dushn/Desktop/gtk_scrolled_window/common.h
+
+/home/dushn/Desktop/gtk_scrolled_window/tree_sorting.c
+tree_sorting.h
+/home/dushn/Desktop/gtk_scrolled_window/tree_sorting.h
+drawing.h
+/home/dushn/Desktop/gtk_scrolled_window/drawing.h
+errno.h
+-
+inttypes.h
+-
+
+/home/dushn/Desktop/gtk_scrolled_window/tree_sorting.h
+common.h
+/home/dushn/Desktop/gtk_scrolled_window/common.h
+string.h
+/home/dushn/Desktop/gtk_scrolled_window/string.h
+common.h
+/home/dushn/Desktop/gtk_scrolled_window/common.h
+gtk/gtk.h
+-
+stdlib.h
+-
 
 /usr/include/atk-1.0/atk/atk-enum-types.h
 atk/atkversion.h

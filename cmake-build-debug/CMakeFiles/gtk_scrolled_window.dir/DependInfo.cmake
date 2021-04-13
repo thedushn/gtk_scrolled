@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_CHECK_C
   "/home/dushn/Desktop/gtk_scrolled_window/main.c" "/home/dushn/Desktop/gtk_scrolled_window/cmake-build-debug/CMakeFiles/gtk_scrolled_window.dir/main.c.o"
   "/home/dushn/Desktop/gtk_scrolled_window/mouse_tracking.c" "/home/dushn/Desktop/gtk_scrolled_window/cmake-build-debug/CMakeFiles/gtk_scrolled_window.dir/mouse_tracking.c.o"
   "/home/dushn/Desktop/gtk_scrolled_window/reading.c" "/home/dushn/Desktop/gtk_scrolled_window/cmake-build-debug/CMakeFiles/gtk_scrolled_window.dir/reading.c.o"
+  "/home/dushn/Desktop/gtk_scrolled_window/tree_sorting.c" "/home/dushn/Desktop/gtk_scrolled_window/cmake-build-debug/CMakeFiles/gtk_scrolled_window.dir/tree_sorting.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 
